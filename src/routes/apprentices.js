@@ -43,7 +43,7 @@ router.post('/addapprentice', [
     check('phone', 'el telefono es obligatorio').not().isEmpty(),
     check('email', 'el email es obligatorio').not().isEmpty(),
     validarCampos
-], httpApprentices.addApprentice);
+], httpApprentices.addApprenticenPreregister);
 
 router.put('/updateapprenticebyid/:id', [
     validarJWT,

@@ -68,23 +68,23 @@ router.get('/listregisterbyenddate', [
 
 
 // Añadir  Registro
-router.post('/addregister', [
-    validarJWT,
-    check('id', 'Este campo es obligatorio').not().isEmpty(),
-    check('id').custom(apprenticeHelper.existApprenticeID),
-    check('id', 'Este campo es obligatorio').not().isEmpty(),
-    check('id').custom(modalityHelper.existeModalityID),
-    check("startDate", "La fecha de inicio es obligatorio").not().isEmpty().isDate(),
-    check('endDate', "La fecha final es obligatorio").not().isEmpty().isDate(),
-    check("company", "La compañia es obligatoria").not().isEmpty(),
-    check("phoneCompany", "El telefono es obligatorio").not().isEmpty().isNumeric().isLength({ min: 10}),
-    check("addressCompany", "La direccion es obligatorio").not().isEmpty().isLength({ min: 8}),
-    check("owner", "El dueño es obligatori@").not().isEmpty(),
-    check("docAlternative", "El dueño es obligatori@").not().isEmpty().isLength({ min: 8, max: 15 }).isNumeric(),
-    check("hour", "Las horas son obligatorias").not().isEmpty().isNumeric(),
-    check("gmailCompany", "El dueño es obligatori@").not().isEmpty(),
-    validarCampos
-], httpRegisters.addRegister);
+// router.post('/addregister', [
+//     validarJWT,
+//     check('id', 'Este campo es obligatorio').not().isEmpty(),
+//     check('id').custom(apprenticeHelper.existApprenticeID),
+//     check('id', 'Este campo es obligatorio').not().isEmpty(),
+//     check('id').custom(modalityHelper.existeModalityID),
+//     check("startDate", "La fecha de inicio es obligatorio").not().isEmpty().isDate(),
+//     check('endDate', "La fecha final es obligatorio").not().isEmpty().isDate(),
+//     check("company", "La compañia es obligatoria").not().isEmpty(),
+//     check("phoneCompany", "El telefono es obligatorio").not().isEmpty().isNumeric().isLength({ min: 10}),
+//     check("addressCompany", "La direccion es obligatorio").not().isEmpty().isLength({ min: 8}),
+//     check("owner", "El dueño es obligatori@").not().isEmpty(),
+//     check("docAlternative", "El dueño es obligatori@").not().isEmpty().isLength({ min: 8, max: 15 }).isNumeric(),
+//     check("hour", "Las horas son obligatorias").not().isEmpty().isNumeric(),
+//     check("gmailCompany", "El dueño es obligatori@").not().isEmpty(),
+//     validarCampos
+// ], httpRegisters.addRegister);
 
 
 

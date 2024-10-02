@@ -1,4 +1,5 @@
 import Apprentice from '../models/apprentice.js';
+import Register from '../models/register.js';
 
 
 const httpApprentices = {
@@ -53,13 +54,25 @@ const httpApprentices = {
             res.status(500).json({ error: error.message });
         }
     },
-    //Crear Aprendiz
-    addApprentice: async (req, res) => {
+    //Crear Aprendiz y pre-registro
+    addApprenticenPreregister: async (req, res) => {
         const { fiche, tpDocument, numDocument, firstName, lastName, phone, email } = req.body;
+        
         try {
             const newApprentice = new Apprentice({ fiche, tpDocument, numDocument, firstName, lastName, phone, email });
-            const ApprenticeCreate = await newApprentice.save();
-            res.status(201).json(ApprenticeCreate);
+            const apprenticeCreated = await newApprentice.save();
+
+            const newRegister = new Register({
+                idApprentice: apprenticeCreated._id,
+            });
+
+            const preRegisterCreated = await newRegister.save();
+
+            res.status(201).json({
+                apprentice: apprenticeCreated,
+                register: preRegisterCreated
+            });
+            console.log("Aprendiz y pre-registro guardados exitosamente");
         } catch (error) {
             res.status(400).json({ message: error.message });
         }
