@@ -1,58 +1,55 @@
-import jwt from 'jsonwebtoken';
-// import UserEp from '../models/userEP.js';
+import axios from 'axios';
+import 'dotenv/config';
 
-const generarJWT = (uid) => {
-    return new Promise((resolve, reject) => {
-        const payload = { uid };
-        jwt.sign(payload, process.env.SECRETORPRIVATEKEY, {
-            expiresIn: '100y' // 100 años
-        }, (err, token) => {
-            if (err) {
-                reject('No se pudo generar el token');
-            } else {
-                resolve(token);
-            }
-        });
-    });
-};
+const REP_FORA = process.env.REP_FORA
 
-const validarJWT = async (req, res, next) => {
-    const token = req.header('x-token');
+const validateRepfora = async (req, res) => {
+    const { token } = req.headers;  // Obtener el token de los headers
+
+    // Mostrar el token en consola para depuración
+    console.log(token);
+
+    // Verificar si el token está presente
     if (!token) {
         return res.status(401).json({
-            msg: 'Error en la petición: Token no proporcionado'
+            msg: 'Token no proveído'
         });
     }
 
     try {
-        const { uid } = jwt.verify(token, process.env.SECRETORPRIVATEKEY);
-        if (!uid) {
-            return res.status(401).json({
-                msg: 'Error en la petición: Token inválido'
+        // Realizar la solicitud POST a la API, enviando el token en los headers
+        const validate = await axios.post(`${REP_FORA}/api/users/token/productive/stages`, {}, {
+            headers: {
+                Authorization: `Bearer ${token}`  // Enviar el token en los headers
+            }
+        });
+
+        // Mostrar la respuesta de la validación
+        console.log(validate.data);
+        
+        // Verificar si el token es válido en la respuesta de la API 
+        
+        if (validate.data.token === true) {
+            console.log('Validación correcta:', validate.data);
+            return res.status(200).json({
+                msg: 'Validación exitosa',
+                data: validate.data
+            });
+        } else {
+            return res.status(400).json({
+                msg: 'Token inválido',
+                data: validate.data
             });
         }
-
-        const usuario = await Usuario.findById(uid);
-
-        if (!usuario) {
-            return res.status(401).json({
-                msg: 'Error en la petición: Usuario no encontrado'
-            });
-        }
-
-        if (usuario.estado === 0) {
-            return res.status(401).json({
-                msg: 'Error en la petición: Usuario inactivo'
-            });
-        }
-
-        req.usuario = usuario; // Añadir el usuario a la solicitud para que esté disponible en las siguientes capas
-        next();
-    } catch (error) {
-        res.status(401).json({
-            msg: 'Token no válido'
+    } catch (error)  {
+        // Manejar errores de la solicitud
+        return res.status(error.response?.status || 500).json({
+            message: error.response?.data?.message || error.message,
+            status: error.response?.status,
+            data: error.response?.data
         });
     }
 };
 
-export { generarJWT, validarJWT };
+
+export { validateRepfora };

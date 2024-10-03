@@ -1,6 +1,5 @@
 import Modality from '../models/modality.js';
 import bcryptjs from 'bcryptjs';
-import { generarJWT } from '../middleware/validarJWT.js';
 
 
 const httpModality = {
@@ -32,8 +31,12 @@ const httpModality = {
     const {name, hourInstructorFollow, hourInstructorTechnical, hourInstructorProject } = req.body;
     try {
         const newModality = new Modality({ name, hourInstructorFollow, hourInstructorTechnical, hourInstructorProject });
+        if (name=="PROYECTO PRODUCTIVO" && hourInstructorProject==32){
+             
+        }
         const ModalityCreate = await newModality.save();
         res.status(201).json(ModalityCreate);
+        console.log(`La modalidad ${name} ha sido creada correctamente`);
     } catch (error) {
         res.status(400).json({ message: error.message });
     }

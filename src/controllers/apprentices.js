@@ -1,6 +1,6 @@
 import Apprentice from '../models/apprentice.js';
 import Register from '../models/register.js';
-
+import Modality from '../models/modality.js';
 
 const httpApprentices = {
     //Listar Aprendicrs
@@ -16,9 +16,9 @@ const httpApprentices = {
 
     //Listar Aprendices por Ficha
     listApprenticesByFiche: async (req, res) => {
-        const { idFiche } = req.params;
+        const { idfiche } = req.params;
         try {
-            const apprentices = await Apprentice.find({ fiche: idFiche });
+            const apprentices = await Apprentice.find({ "fiche.idFiche": idfiche });
             res.json({ apprentices });
         } catch (error) {
             res.status(500).json({ message: error.message });
@@ -56,7 +56,7 @@ const httpApprentices = {
     },
     //Crear Aprendiz y pre-registro
     addApprenticenPreregister: async (req, res) => {
-        const { fiche, tpDocument, numDocument, firstName, lastName, phone, email } = req.body;
+        const { fiche, tpDocument, numDocument, firstName, lastName, phone, email, modality } = req.body;
         
         try {
             const newApprentice = new Apprentice({ fiche, tpDocument, numDocument, firstName, lastName, phone, email });
@@ -64,7 +64,9 @@ const httpApprentices = {
 
             const newRegister = new Register({
                 idApprentice: apprenticeCreated._id,
+                idModality: modality
             });
+
 
             const preRegisterCreated = await newRegister.save();
 

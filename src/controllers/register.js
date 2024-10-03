@@ -2,7 +2,6 @@ import Register from '../models/register.js';
 import Apprentice from '../models/apprentice.js';
 import Modality from '../models/modality.js';
 import bcryptjs from 'bcryptjs';
-import { generarJWT } from '../middleware/validarJWT.js';
 
 
 const httpRegisters = {

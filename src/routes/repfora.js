@@ -2,6 +2,7 @@ import express from 'express';
 import { check } from 'express-validator';
 import useRepfora from '../controllers/repfora.js'
 import authetication from '../services/authService.js'
+import { validateRepfora } from '../middleware/validarJWT.js'
 // import validarCampos from '../middleware/validarCampos.js';
 // import ficheHelper from '../helpers/repfora.js'
 
@@ -24,6 +25,8 @@ router.post('/login', async (req, res) => {
       res.status(401).json({ message: error.message });
     }
   });
+
+router.post('/validate', [], validateRepfora);
 
 
 export default router;

@@ -1,10 +1,7 @@
 import httpModality from "../controllers/modality.js"
 import express from 'express';
 import { check } from 'express-validator'
-
-
-import {validarJWT }from "../middleware/validarJWT.js"
-import  modalityHelper from "../helpers/modality.js";
+import modalityHelper from "../helpers/modality.js";
 import validarCampos from "../middleware/validarCampos.js"
 
 const router = express.Router();
@@ -12,7 +9,7 @@ const router = express.Router();
 // Listar todos los registros modalidad
 
 router.get('/listallmodality', [
-    validarJWT
+    // validarJWT
 ], httpModality.listallModality);
 
 
@@ -26,9 +23,9 @@ router.get('/listmodalitybyid/:id', [
 // Añadir  Modalidad
 router.post('/addmodality', [
     check("name", "El nombre es obligatorio").not().isEmpty(),
-    check('hourInstructorFollow', "La hora del seguimiento del instructor es obligatoria").isNumeric(),
-    check("hourInstructorTechnical", "La contraseña es obligatoria").not().isEmpty().isNumeric(),
-    check("hourInstructorProject", "La contraseña es obligatoria").not().isEmpty().isNumeric(),
+    check('hourInstructorFollow', "La hora del seguimiento del instructor debe ser un número").optional().isNumeric(),
+    check("hourInstructorTechnical", "El número de horas del instructor técnico debe ser un número").optional().isNumeric(),
+    check("hourInstructorProject", "El número de horas del proyecto debe ser un número").optional().isNumeric(),
     validarCampos
 ], httpModality.addModality);
 

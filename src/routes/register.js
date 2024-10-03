@@ -3,7 +3,6 @@ import express from 'express';
 import { check } from 'express-validator'
 
 import validarCampos from "../middleware/validarCampos.js"
-import {validarJWT }from "../middleware/validarJWT.js"
 import  modalityHelper from "../helpers/modality.js";
 import  apprenticeHelper from "../helpers/apprentices.js";
 import  registerHelper from "../helpers/register.js";
@@ -16,12 +15,12 @@ const router = express.Router();
 
 // Listar todos los registros
 router.get('/listallregister', [
-    validarJWT
+    // validarJWT
 ], httpRegisters.listAllRegister);
 
 // Listar un registro por su ID
 router.get('/listregisterbyid/:id', [
-    validarJWT,
+    // validarJWT,
     check('id', 'Este campo es obligatorio').not().isEmpty(),
     check('id').custom(registerHelper.existeRegisterID),
     validarCampos
@@ -30,7 +29,7 @@ router.get('/listregisterbyid/:id', [
 
 // Listar registro por el ID del aprendiz
 router.get('/listregisterbyapprentice/:idapprentice', [
-    validarJWT,
+    // validarJWT,
     check('id', 'Este campo es obligatorio').not().isEmpty(),
     check('id').custom(apprenticeHelper.existApprenticeID),
     validarCampos
@@ -38,7 +37,7 @@ router.get('/listregisterbyapprentice/:idapprentice', [
 
 // Listar registros por ID de ficha
 router.get('/listregistersbyfiche/:idfiche', [
-    validarJWT,
+    // validarJWT,
     check('id', 'Este campo es obligatorio').not().isEmpty(),
     check('fiche.idFiche').custom(ficheHelper.existsFicheID),
     validarCampos
@@ -46,7 +45,7 @@ router.get('/listregistersbyfiche/:idfiche', [
 
 // Listar registros por ID de modalidad
 router.get('/listregisterbymodality/:idmodality', [
-    validarJWT,
+    // validarJWT,
     check('id', 'Este campo es obligatorio').not().isEmpty(),
     check('id').custom(modalityHelper.existeModalityID),
     validarCampos
@@ -54,13 +53,13 @@ router.get('/listregisterbymodality/:idmodality', [
 
 // Listar los registros por fecha de inicio 
 router.get('/listregisterbystartdate', [
-    validarJWT,
+    // validarJWT,
     validarCampos
 ], httpRegisters.listRegisterByStartDate);
 
 // Listar los registros por fecha de finalización
 router.get('/listregisterbyenddate', [
-    validarJWT,
+    // validarJWT,
     validarCampos
    
 ], httpRegisters.listRegisterByEndDate);
@@ -90,7 +89,7 @@ router.get('/listregisterbyenddate', [
 
 // Actualizar los datos del registro
 router.put('/updateregisterbyid/:id', [
-    validarJWT,
+    // validarJWT,
     check('id', 'Este campo es obligatorio').not().isEmpty(),
     check('id').custom(apprenticeHelper.existApprenticeID),
     check('id', 'Este campo es obligatorio').not().isEmpty(),
@@ -111,7 +110,7 @@ router.put('/updateregisterbyid/:id', [
 
 // Actualizar la modalidad de registro.
 router.put('/updatemodalityregister/:id', [
-    validarJWT,
+    // validarJWT,
     check('id', 'Es mongo id').not().isEmpty(),
     check('id').custom(registerHelper.existeRegisterID),
     validarCampos
@@ -121,7 +120,7 @@ router.put('/updatemodalityregister/:id', [
 
 // Activar un registro
 router.put('/enableregister/:id', [
-    validarJWT,
+    // validarJWT,
     check('id', 'Es mongo id').not().isEmpty(),
     check('id').custom(registerHelper.existeRegisterID),
     validarCampos
