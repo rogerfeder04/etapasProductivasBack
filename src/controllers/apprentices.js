@@ -1,6 +1,5 @@
 import Apprentice from '../models/apprentice.js';
 import Register from '../models/register.js';
-import Modality from '../models/modality.js';
 
 const httpApprentices = {
     //Listar Aprendicrs

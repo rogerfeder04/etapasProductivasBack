@@ -4,12 +4,10 @@ import 'dotenv/config';
 const REP_FORA = process.env.REP_FORA
 
 const validateRepfora = async (req, res) => {
-    const { token } = req.headers;  // Obtener el token de los headers
+    const { token } = req.headers;
 
-    // Mostrar el token en consola para depuración
-    console.log(token);
+    console.log("Token Capturado:", token);
 
-    // Verificar si el token está presente
     if (!token) {
         return res.status(401).json({
             msg: 'Token no proveído'
@@ -17,17 +15,12 @@ const validateRepfora = async (req, res) => {
     }
 
     try {
-        // Realizar la solicitud POST a la API, enviando el token en los headers
-        const validate = await axios.post(`${REP_FORA}/api/users/token/productive/stages`, {}, {
-            headers: {
-                Authorization: `Bearer ${token}`  // Enviar el token en los headers
-            }
+        const validate = await axios.post(`${REP_FORA}/api/users/token/productive/stages`, null, {
+            headers: { token: token }
         });
 
-        // Mostrar la respuesta de la validación
-        console.log(validate.data);
+        console.log("Respuesta del Api:", validate.data);
         
-        // Verificar si el token es válido en la respuesta de la API 
         
         if (validate.data.token === true) {
             console.log('Validación correcta:', validate.data);
@@ -42,7 +35,6 @@ const validateRepfora = async (req, res) => {
             });
         }
     } catch (error)  {
-        // Manejar errores de la solicitud
         return res.status(error.response?.status || 500).json({
             message: error.response?.data?.message || error.message,
             status: error.response?.status,
