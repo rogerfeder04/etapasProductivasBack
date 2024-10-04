@@ -8,23 +8,23 @@ import { validateRepfora } from '../middleware/validarJWT.js'
 
 const router = express.Router();
 
-router.get('/instructors', [], useRepfora.listallinstructors);
+router.get('/instructors', [
+  validateRepfora
+], useRepfora.listallinstructors);
 
-router.get('/instructors/:id', [], useRepfora.listinstructorbyid);
+router.get('/instructors/:id', [
+  validateRepfora
+], useRepfora.listinstructorbyid);
 
-router.get('/fiches', [], useRepfora.listallfiches);
+router.get('/fiches', [
+  validateRepfora
+], useRepfora.listallfiches);
 
-router.get('/fiches/:id', [], useRepfora.listafichebyid);
+router.get('/fiches/:id', [
+  validateRepfora
+], useRepfora.listafichebyid);
 
-router.post('/login', async (req, res) => {
-    try {
-      const { email, password, role } = req.body;
-      const token = await authetication.login(email, password, role);
-      res.json({ token });
-    } catch (error) {
-      res.status(401).json({ message: error.message });
-    }
-  });
+router.post('/login', [], useRepfora.login)
 
 router.post('/validate', [], validateRepfora);
 

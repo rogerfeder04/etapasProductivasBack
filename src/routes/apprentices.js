@@ -2,40 +2,46 @@ import express from 'express';
 import { check } from "express-validator";
 import httpApprentices from "../controllers/apprentices.js";
 import validarCampos from "../middleware/validarCampos.js";
-import {validateRepfora} from "../middleware/validarJWT.js"
+import { validateRepfora } from "../middleware/validarJWT.js"
 import apprenticeHelper from "../helpers/apprentices.js";
-import { ficheHelper } from "../helpers/repfora.js"
+import ficheHelper from "../helpers/repfora.js"
 import modalityHelper from "../helpers/modality.js";
 
 const router = express.Router();
 
 router.get('/listallapprentice', [
-    // validarJWT,
-    // validarCampos
+    validateRepfora
 ], httpApprentices.listApprentices);
 
 router.get('/listapprenticebyid/:id', [
-    // validarJWT,
+    validateRepfora,
     check('id', 'El ID no es valido').isMongoId(),
     check('id').custom(apprenticeHelper.existApprenticeID),
     validarCampos
 ], httpApprentices.listApprenticesByID);
 
 router.get('/listapprenticebyfiche/:idfiche', [
-    // validarJWT,
-    check('idfiche').custom(ficheHelper.existsFicheID),
+    validateRepfora,
+    check('idfiche')
+    .custom(async (idfiche, { req }) => {
+        await ficheHelper.existsFicheID(idfiche, req.headers.token);
+    })
+    .withMessage('ID de ficha es obligatorio'),
+
     validarCampos
 ], httpApprentices.listApprenticesByFiche);
 
 router.get('/listapprenticebystatus/:status', [
-    // validarJWT,
+    validateRepfora
 ], httpApprentices.listApprenticeByStatus);  // Coma adicional removida
 
 router.post('/addapprentice', [
-    // validarJWT,
+    validateRepfora,
     check('fiche', 'El campo ficha es obligatorio').notEmpty(),
     check('fiche.idFiche', 'El ID no es valido').isMongoId(),
-    check('fiche.idFiche').custom(ficheHelper.existsFicheID),
+    check('fiche.idFiche').custom(async (idFiche, { req }) => {
+        await ficheHelper.existsFicheID(idFiche, req.headers.token)
+    }),
     check('fiche.number', 'El codigo de la ficha es obligatorio').notEmpty(),
     check('fiche.name', 'El nombre de la ficha es obligatorio').notEmpty(),
     check('tpDocument', 'el documento es obligatorio').not().isEmpty(),

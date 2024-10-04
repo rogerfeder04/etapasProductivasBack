@@ -23,6 +23,7 @@ const httpApprentices = {
             res.status(500).json({ message: error.message });
         }
     },
+
     //Listar Aprendices por ID
     listApprenticesByID: async (req, res) => {
         const { id } = req.params;

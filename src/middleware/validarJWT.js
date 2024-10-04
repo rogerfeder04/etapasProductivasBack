@@ -1,9 +1,8 @@
 import axios from 'axios';
-import 'dotenv/config';
 
-const REP_FORA = process.env.REP_FORA
+const REP_FORA = process.env.REP_FORA;
 
-const validateRepfora = async (req, res) => {
+const validateRepfora = async (req, res, next) => {
     const { token } = req.headers;
 
     console.log("Token Capturado:", token);
@@ -20,21 +19,21 @@ const validateRepfora = async (req, res) => {
         });
 
         console.log("Respuesta del Api:", validate.data);
-        
-        
+
         if (validate.data.token === true) {
             console.log('Validación correcta:', validate.data);
-            return res.status(200).json({
-                msg: 'Validación exitosa',
-                data: validate.data
-            });
+            
+    
+            req.userData = validate.data;
+
+            return next();
         } else {
             return res.status(400).json({
                 msg: 'Token inválido',
                 data: validate.data
             });
         }
-    } catch (error)  {
+    } catch (error) {
         return res.status(error.response?.status || 500).json({
             message: error.response?.data?.message || error.message,
             status: error.response?.status,
@@ -42,6 +41,5 @@ const validateRepfora = async (req, res) => {
         });
     }
 };
-
 
 export { validateRepfora };
