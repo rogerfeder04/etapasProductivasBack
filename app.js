@@ -1,4 +1,5 @@
-import {} from 'dotenv/config.js'
+import dotenv from 'dotenv';
+dotenv.config();
 import {Server} from './src/models/server.js'
 
 

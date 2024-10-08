@@ -1,3 +1,4 @@
+import apprentice from '../models/apprentice.js';
 import Apprentice from '../models/apprentice.js';
 import Register from '../models/register.js';
 
@@ -57,7 +58,7 @@ const httpApprentices = {
     //Crear Aprendiz y pre-registro
     addApprenticenPreregister: async (req, res) => {
         const { fiche, tpDocument, numDocument, firstName, lastName, phone, email, modality } = req.body;
-        
+
         try {
             const newApprentice = new Apprentice({ fiche, tpDocument, numDocument, firstName, lastName, phone, email });
             const apprenticeCreated = await newApprentice.save();
@@ -102,11 +103,15 @@ const httpApprentices = {
     disableApprentice: async (req, res) => {
         const { id } = req.params;
         try {
-            const aprendiz = await Apprentice.findByIdAndUpdate(id, { estado: 0 }, { new: true });
-            if (!aprendiz) {
+            const apprentice = await Apprentice.findById(id)
+            if (!apprentice) {
                 return res.status(404).json({ message: 'Aprendiz no encontrado' });
+            } else if (apprentice.status == 0) {
+                return res.status(400).json({ message: "El aprendiz ya se encuentra inactivo" });
             }
-            res.json(aprendiz);
+            apprentice.status = 0
+            await apprentice.save();
+            res.json(apprentice);
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
@@ -115,11 +120,15 @@ const httpApprentices = {
     enableApprencice: async (req, res) => {
         const { id } = req.params;
         try {
-            const aprendiz = await Apprentice.findByIdAndUpdate(id, { estado: 1 }, { new: true });
-            if (!aprendiz) {
+            const apprentice = await Apprentice.findById(id);
+            if (!apprentice) {
                 return res.status(404).json({ message: 'Aprendiz no encontrado' });
+            } else if (apprentice.status == 1) {
+                return res.status(400).json({ message: "El aprendiz ya se encuentra activo" });
             }
-            res.json(aprendiz);
+            apprentice.status = 1
+            await apprentice.save();
+            res.json({ message: "Aprendiz activado correctamente", apprentice });
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
