@@ -9,7 +9,7 @@ import { validateRepfora } from '../middleware/validarJWT.js'
 const router = express.Router();
 
 router.get('/instructors', [
-  validateRepfora
+  // validateRepfora
 ], useRepfora.listallinstructors);
 
 router.get('/instructors/:id', [

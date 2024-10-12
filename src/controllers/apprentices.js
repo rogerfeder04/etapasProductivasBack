@@ -1,6 +1,7 @@
-import apprentice from '../models/apprentice.js';
 import Apprentice from '../models/apprentice.js';
 import Register from '../models/register.js';
+import readline from 'readline';
+import { Readable } from 'stream';
 
 const httpApprentices = {
     //Listar Aprendicrs
@@ -79,6 +80,59 @@ const httpApprentices = {
         } catch (error) {
             res.status(400).json({ message: error.message });
         }
+    },
+
+    //Añadir aprendices por archivo plano
+    createApprenticesCSV: async (file) => {
+        const results = [];
+
+        const readable = new Readable();
+        readable._read = () => {};
+        readable.push(file.buffer);
+        readable.push(null);
+
+        const rl = readline.createInterface({
+            input: readable,
+            crlfDelay: Infinity,
+        });
+
+        for await (const line of rl) {
+            const data = line.split(','); // Asegúrate de que esto coincida con el delimitador de tu CSV
+
+            // Verificar que la línea contenga suficientes datos
+            if (data.length < 8) {
+                console.error('Error: Datos faltantes en la línea:', line);
+                continue; // Omite esta línea si no hay suficientes datos
+            }
+
+            const [fiche, tpDocument, numDocument, firstName, lastName, phone, email, modality] = data;
+
+            // Validar que todos los campos requeridos estén presentes
+            if (!tpDocument || !numDocument || !firstName || !lastName || !phone || !email || !modality) {
+                console.error('Error: Datos faltantes en la línea:', line);
+                continue; // Omite esta línea y continúa
+            }
+
+            try {
+                // Crear un nuevo aprendiz
+                const newApprentice = new Apprentice({ fiche, tpDocument, numDocument, firstName, lastName, phone, email });
+                const apprenticeCreated = await newApprentice.save();
+
+                // Crear un nuevo registro asociado al aprendiz
+                const newRegister = new Register({
+                    idApprentice: apprenticeCreated._id,
+                    idModality: modality // Usar el valor de modalidad directamente
+                });
+
+                const preRegisterCreated = await newRegister.save();
+
+                results.push({ apprentice: apprenticeCreated, register: preRegisterCreated });
+            } catch (error) {
+                console.error('Error al guardar el aprendiz:', error.message);
+            }
+        }
+
+        return results; // Retornar todos los registros creados
     },
     // Editar un aprendiz por su ID
     updateApprenticeByID: async (req, res) => {

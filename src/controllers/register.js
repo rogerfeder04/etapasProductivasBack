@@ -152,38 +152,24 @@ const httpRegisters = {
     },
     // Actualizar los datos del registro 
     updateRegisterById: async (req, res) => {
-        const { id } = req.params;  // ID del registro a actualizar
+        const { id } = req.params;
         const { idApprentice, idModality, startDate, endDate, lastName, company, phoneCompany, addressCompany, owner, docAlternative, hour, mailCompany } = req.body;
-
         try {
-            // Buscar el registro por ID y actualizarlo con los datos del cuerpo de la solicitud
-            const updatedRegister = await Register.findByIdAndUpdate(
-                id,
-                {
-                    idApprentice,
-                    idModality,
-                    startDate,
-                    endDate,
-                    lastName,
-                    company,
-                    phoneCompany,
-                    addressCompany,
-                    owner,
-                    docAlternative,
-                    hour,
-                    mailCompany
-                },
-                { new: true }  // Opción para devolver el documento actualizado
-            );
-
-            if (!updatedRegister) {
+            const registerID = await Register.findById (id);
+            if (!registerID) {
                 return res.status(404).json({ msg: "Registro no encontrado" });
             }
-            // Responde con el registro actualizado
+
+            const updatedRegister = await Register.findByIdAndUpdate(
+                id, { idApprentice, idModality, startDate, endDate, lastName, company, phoneCompany, addressCompany, owner, docAlternative, hour, mailCompany },
+                { new: true }
+            );
+
+            console.log('Registro editado correctamente:', updatedRegister);
             res.json(updatedRegister);
         } catch (error) {
-            // Captura errores y responde con un mensaje
-            res.status(400).json({ message: error.message });
+            console.log('Error al actualizar registro:', error);
+            res.status(400).json({ error: 'Error al actualizar el registro' });
         }
     },
 

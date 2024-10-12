@@ -1,5 +1,6 @@
 import express from 'express';
 import { check } from "express-validator";
+import multer from 'multer';
 import httpApprentices from "../controllers/apprentices.js";
 import validarCampos from "../middleware/validarCampos.js";
 import { validateRepfora } from "../middleware/validarJWT.js"
@@ -7,7 +8,9 @@ import apprenticeHelper from "../helpers/apprentices.js";
 import ficheHelper from "../helpers/repfora.js"
 import modalityHelper from "../helpers/modality.js";
 
+
 const router = express.Router();
+const upload = multer();
 
 router.get('/listallapprentice', [
     validateRepfora
@@ -53,6 +56,15 @@ router.post('/addapprentice', [
     check('modality').custom(modalityHelper.existeModalityID),
     validarCampos
 ], httpApprentices.addApprenticenPreregister);
+
+router.post('/upload', upload.single('file'), async (req, res) => {
+    try {
+        const createdRecords = await httpApprentices.createApprenticesCSV(req.file); // Pasa el archivo a la función
+        res.status(201).json({ message: 'Aprendices y preregistros guardados exitosamente', data: createdRecords });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
 
 router.put('/updateapprenticebyid/:id', [
     validateRepfora,

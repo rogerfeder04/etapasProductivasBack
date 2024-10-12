@@ -90,10 +90,10 @@ router.get('/listregisterbyenddate', [
 // Actualizar los datos del registro
 router.put('/updateregisterbyid/:id', [
     // validarJWT,
-    check('id', 'Este campo es obligatorio').not().isEmpty(),
-    check('id').custom(apprenticeHelper.existApprenticeID),
-    check('id', 'Este campo es obligatorio').not().isEmpty(),
-    check('id').custom(modalityHelper.existeModalityID),
+    check('idApprentice', 'Este campo es obligatorio').not().isEmpty(),
+    check('idApprentice').custom(apprenticeHelper.existApprenticeID),
+    check('idModality', 'Este campo es obligatorio').not().isEmpty(),
+    check('idModality').custom(modalityHelper.existeModalityID),
     check("startDate", "La fecha de inicio es obligatorio").not().isEmpty().isDate(),
     check('endDate', "La fecha final es obligatorio").not().isEmpty().isDate(),
     check("company", "La compañia es obligatoria").not().isEmpty(),
@@ -102,7 +102,9 @@ router.put('/updateregisterbyid/:id', [
     check("owner", "El dueño es obligatori@").not().isEmpty(),
     check("docAlternative", "El dueño es obligatori@").not().isEmpty().isLength({ min: 8, max: 15 }).isNumeric(),
     check("hour", "Las horas son obligatorias").not().isEmpty().isNumeric(),
-    check("gmailCompany", "El dueño es obligatori@").not().isEmpty(),
+    check("businessProyectHour", "Las horas de instruntor de proyecto empresarial son obligatorias").not().isEmpty().isNumeric(),
+    check("productiveProjectHour", "Las horas de instructor de proyecto productivo son obligatorias").not().isEmpty().isNumeric(),
+    check("mailCompany", "El dueño es obligatori@").not().isEmpty(),
     validarCampos
 ], httpRegisters.updateRegisterById);
 
