@@ -32,11 +32,16 @@ const httpRegisters = {
     // Listar registro por el ID del aprendiz
     listRegisterByApprentice: async (req, res) => {
         const { idApprentice } = req.params;
+        // if (!mongoose.isValidObjectId(idApprentice)) {
+        //     return res.status(400).json({ success: false, error: 'ID de aprendiz no válido' });
+        // }
         try {
-            const apprentices = await Apprentice.find({ idApprentice: idApprentice });
-            res.json(apprentices);
+            const registers = await Register.find({ idApprentice });
+            console.log(`Lista de idaprendices en registros: ${idApprentice}`);
+            res.json({ success: true, data: registers });
         } catch (error) {
-            res.status(500).json({ message: error.message });
+            console.log(`Error al listar idaprendices en registros: ${idApprentice}`, error);
+            res.status(500).json({ error: 'Error al listar idaprendices en registros' });
         }
     },
 
@@ -141,9 +146,14 @@ const httpRegisters = {
 
     // Añadir  Registro:
     addRegister: async (req, res) => {
-        const { idApprentice, idModality, startDate, endDate, lastName, company, phoneCompany, addressCompany, owner, docAlternative, hour, mailCompany } = req.body;
+        const { idApprentice, idModality, startDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany } = req.body;
         try {
-            const newRegister = new Register({ idApprentice, idModality, startDate, endDate, lastName, company, phoneCompany, addressCompany, owner, docAlternative, hour, mailCompany });
+            const start = new Date(startDate);
+            const endDate = new Date(start);
+            endDate.setMonth(endDate.getMonth() + 6);
+            endDate.setDate(endDate.getDate() - 1);
+
+            const newRegister = new Register({ idApprentice, idModality, startDate, endDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany });
             const RegisterCreate = await newRegister.save();
             res.status(201).json(RegisterCreate);
         } catch (error) {
@@ -153,15 +163,20 @@ const httpRegisters = {
     // Actualizar los datos del registro 
     updateRegisterById: async (req, res) => {
         const { id } = req.params;
-        const { idApprentice, idModality, startDate, endDate, lastName, company, phoneCompany, addressCompany, owner, docAlternative, hour, mailCompany } = req.body;
+        const { iidApprentice, idModality, startDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany } = req.body;
         try {
-            const registerID = await Register.findById (id);
+            const registerID = await Register.findById(id);
             if (!registerID) {
                 return res.status(404).json({ msg: "Registro no encontrado" });
             }
 
+            const start = new Date(startDate);
+            const endDate = new Date(start);
+            endDate.setMonth(endDate.getMonth() + 6);
+            endDate.setDate(endDate.getDate() - 1);
+
             const updatedRegister = await Register.findByIdAndUpdate(
-                id, { idApprentice, idModality, startDate, endDate, lastName, company, phoneCompany, addressCompany, owner, docAlternative, hour, mailCompany },
+                id, { idApprentice, idModality, startDate, endDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany },
                 { new: true }
             );
 
@@ -195,6 +210,23 @@ const httpRegisters = {
         }
     },
     updateRegisterModality: async (req, res) => {
+        const { id } = req.params;
+        const { modality } = req.body;
+        try {
+            const modalityID = await Modality.findById(id);
+            if (!modalityID) {
+                return res.status(404).json({ msg: "Modalidad no encontrada" });
+            }
+
+            const updatedModality = await Register.findByIdAndUpdate(id, { modality }, { new: true });
+            if (!updatedModality) {
+                return res.status(404).json({ message: 'Registro no encontrado' });
+            }
+            res.json({ success: true, data: updatedModality });
+        } catch (error) {
+            console.log('Error al actualizar modalidad', error);
+            res.status(500).json({ error: 'Error al actualizar modalidad' });
+        }
     }
 
 };

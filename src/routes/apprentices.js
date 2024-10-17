@@ -57,6 +57,23 @@ router.post('/addapprentice', [
     validarCampos
 ], httpApprentices.addApprenticenPreregister);
 
+// router.post('/addapprentice', [
+//     validateRepfora,
+//     check('fiche', 'El campo ficha es obligatorio').notEmpty(),
+//     check('fiche.idFiche', 'El ID no es valido').isMongoId(),
+//     check('fiche.idFiche').custom(async (idFiche, { req }) =>
+//         {await ficheHelper.existsFicheID(idFiche, req.headers.token)}),
+//     check('fiche.number', 'El codigo de la ficha es obligatorio').notEmpty(),
+//     check('fiche.name', 'El nombre de la ficha es obligatorio').notEmpty(),
+//     check('tpDocument', 'el documento es obligatorio').notEmpty(),
+//     check('numDocument', 'el documento es obligatorio').notEmpty(),
+//     check('firstName', 'el nombre es obligatorio').notEmpty(),
+//     check('lastName', 'el apellido es obligatorio').notEmpty(),
+//     check('phone', 'el telefono es obligatorio').notEmpty(),
+//     check('email', 'el email es obligatorio').notEmpty(),
+//     validarCampos
+// ], httpApprentices.addApprenticenPreregister);
+
 router.post('/upload', upload.single('file'), async (req, res) => {
     try {
         const createdRecords = await httpApprentices.createApprenticesCSV(req.file); // Pasa el archivo a la función

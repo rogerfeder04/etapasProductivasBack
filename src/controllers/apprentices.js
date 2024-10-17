@@ -56,7 +56,7 @@ const httpApprentices = {
             res.status(500).json({ error: error.message });
         }
     },
-    //Crear Aprendiz y pre-registro
+    // Crear Aprendiz y pre-registro
     addApprenticenPreregister: async (req, res) => {
         const { fiche, tpDocument, numDocument, firstName, lastName, phone, email, modality } = req.body;
 
@@ -81,6 +81,21 @@ const httpApprentices = {
             res.status(400).json({ message: error.message });
         }
     },
+    // addApprenticenPreregister: async (req, res) => {
+    //     const { fiche, tpDocument, numDocument, firstName, lastName, phone, email } = req.body;
+
+    //     try {
+    //         const newApprentice = new Apprentice({ fiche, tpDocument, numDocument, firstName, lastName, phone, email });
+    //         const apprenticeCreated = await newApprentice.save();
+
+    //         res.status(201).json({
+    //             apprentice: apprenticeCreated,
+    //         });
+    //         console.log("Aprendiz y pre-registro guardados exitosamente");
+    //     } catch (error) {
+    //         res.status(400).json({ message: error.message });
+    //     }
+    // },
 
     //Añadir aprendices por archivo plano
     createApprenticesCSV: async (file) => {

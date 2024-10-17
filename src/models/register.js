@@ -3,8 +3,8 @@ import mongoose from "mongoose";
 const registerSchema = new mongoose.Schema({
     idApprentice: { type: mongoose.Schema.Types.ObjectId, ref: 'Apprentices'},
     idModality: { type: mongoose.Schema.Types.ObjectId, ref: 'Modality'},
-    startDate: { type: String },
-    endDate: { type: String },
+    startDate: { type: Date },
+    endDate: { type: Date },
     company: { type: String },
     phoneCompany: { type: String },
     addressCompany: { type: String },
