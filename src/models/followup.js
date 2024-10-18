@@ -1,7 +1,7 @@
 import mongoose  from 'mongoose';
 
 const followupSchema = new mongoose.Schema({
-    assignment: { type: mongoose.Schema.Types.ObjectId, ref: 'assigment', require: true },
+    assignament: { type: mongoose.Schema.Types.ObjectId, ref: 'assigment', require: true },
     instructor: { idInstructor: mongoose.Schema.Types.ObjectId, name: String },
     number: { type: Number, required: true, enum: [1, 2, 3] },
     month: { type: Date, require: true },

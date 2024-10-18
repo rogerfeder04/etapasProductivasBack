@@ -100,7 +100,6 @@ const httpApprentices = {
     //Añadir aprendices por archivo plano
     createApprenticesCSV: async (file) => {
         const results = [];
-
         const readable = new Readable();
         readable._read = () => {};
         readable.push(file.buffer);
@@ -111,12 +110,21 @@ const httpApprentices = {
             crlfDelay: Infinity,
         });
 
+        let isFirstLine = true; // Variable para controlar si es la primera línea
         for await (const line of rl) {
-            const data = line.split(','); // Asegúrate de que esto coincida con el delimitador de tu CSV
+            if (isFirstLine) {
+                isFirstLine = false; // Ignorar la primera línea (encabezados)
+                continue; // Salta la línea de encabezados
+            }
 
-            // Verificar que la línea contenga suficientes datos
+            // Reemplazar punto y coma por coma
+            const formattedLine = line.replace(/;/g, ','); 
+
+            const data = formattedLine.split(','); // Divide la línea en campos
+
+            // Verifica que la línea contenga suficientes datos
             if (data.length < 8) {
-                console.error('Error: Datos faltantes en la línea:', line);
+                console.error('Error: Datos faltantes en la línea:', formattedLine);
                 continue; // Omite esta línea si no hay suficientes datos
             }
 
@@ -124,11 +132,18 @@ const httpApprentices = {
 
             // Validar que todos los campos requeridos estén presentes
             if (!tpDocument || !numDocument || !firstName || !lastName || !phone || !email || !modality) {
-                console.error('Error: Datos faltantes en la línea:', line);
+                console.error('Error: Datos faltantes en la línea:', formattedLine);
                 continue; // Omite esta línea y continúa
             }
 
             try {
+                // Buscar el ObjectId de la modalidad
+                /* const modality = await Modality.findOne({ name: modality });
+                if (!modality) {
+                    console.error('Error: Modalidad no encontrada para', modality);
+                    continue; // Omite esta línea si la modalidad no existe
+                } */
+
                 // Crear un nuevo aprendiz
                 const newApprentice = new Apprentice({ fiche, tpDocument, numDocument, firstName, lastName, phone, email });
                 const apprenticeCreated = await newApprentice.save();
@@ -136,7 +151,7 @@ const httpApprentices = {
                 // Crear un nuevo registro asociado al aprendiz
                 const newRegister = new Register({
                     idApprentice: apprenticeCreated._id,
-                    idModality: modality // Usar el valor de modalidad directamente
+                    idModality: modality // Usa el ObjectId de la modalidad
                 });
 
                 const preRegisterCreated = await newRegister.save();

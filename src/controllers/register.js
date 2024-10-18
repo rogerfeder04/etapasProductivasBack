@@ -1,4 +1,5 @@
 import Register from '../models/register.js';
+import mongoose from 'mongoose';
 import Apprentice from '../models/apprentice.js';
 import Modality from '../models/modality.js';
 import bcryptjs from 'bcryptjs';
@@ -45,26 +46,58 @@ const httpRegisters = {
         }
     },
 
-    // Listar registros por ID de ficha:
-    listRegistersByFiche: async (req, res) => {
-        try {
-            const { idFiche } = req.params;  // idFiche por parámetro
-
-            // Busca todos los registros cuyo aprendiz tenga el idFiche dado
-            const registers = await Register.find()
-                .populate({
-                    path: 'idApprentice',  // Poblamos el aprendiz
-                    match: { idFiche },    // Solo aquellos que coinciden con el idFiche
-                });
-
-            // Filtra los registros donde se haya poblado un aprendiz
-            const filteredRegisters = registers.filter(reg => reg.idApprentice !== null);
-
-            res.json(filteredRegisters);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
-    },
+// Listar registros por ID de ficha
+listRegistersByFiche: async (req, res) => {
+    const { idFiche } = req.params;
+    console.log(`ID de ficha recibido: ${idFiche}`);
+    
+    try {
+      const registers = await Register.aggregate([
+        {
+          $lookup: {
+            from: "apprentices",
+            localField: "idApprentice",
+            foreignField: "_id",
+            as: "apprentice",
+          },
+        },
+        {
+          $unwind: "$apprentice",
+        },
+ 
+        {
+          $match: {
+            "apprentice.fiche.idFiche": new mongoose.Types.ObjectId(idFiche),
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            ficheid:"$apprentice.fiche",
+            idApprentice: 1,
+            idModality: 1,
+            startDate:1,
+            endDate:1,
+            company:1,
+            phoneCompany: 1,
+            addressCompany:1,
+            owner: 1,
+            docAlternative:1,
+            hour : 1,
+            businessProyectHour: 1,
+            productiveProjectHour: 1,
+            status: 1,
+            mailCompany :1,
+          },
+        },
+      ]);
+      console.log(`Registros encontrados: ${JSON.stringify(registers, null, 2)}`);
+      res.json({ success: true, data: registers });
+    } catch (error) {
+      console.log(`Error al listar idfiche en register: ${idFiche}`, error);
+      res.status(500).json({ error: "Error al listar idfiche en register" });
+    }
+  },
     //segunda opcion:
     // listRegistersByFiche:async (req, res) => {
     //     try {
@@ -111,14 +144,10 @@ const httpRegisters = {
 
     // Listar los registros por fecha de inicio 
     listRegisterByStartDate: async (req, res) => {
-        const { startDate } = req.query; // Obtén el valor de StartDate desde los parámetros de consulta
+        const { startDate } = req.params; // Obtén el valor de StartDate desde los parámetros de consulta
 
-        if (!startDate) {
-            return res.status(400).json({ message: 'El parámetro StartDate es requerido' });
-        }
-
-        try {
-            const register = await Register.find({ StartDate: startDate });
+        try {   
+            const register = await Register.find({ startDate });
             res.status(200).json(register);
         } catch (error) {
             console.error('Error al listar los registros por fecha de inicio:', error);
@@ -129,14 +158,10 @@ const httpRegisters = {
 
     // Listar los registros por fecha de finalización
     listRegisterByEndDate: async (req, res) => {
-        const { endDate } = req.query; // Obtén el valor de StartDate desde los parámetros de consulta
-
-        if (!endDate) {
-            return res.status(400).json({ message: 'El parámetro StarDate es requerido' });
-        }
+        const { endDate } = req.params; // Obtén el valor de StartDate desde los parámetros de consulta
 
         try {
-            const register = await Register.find({ EndDate: endDate });
+            const register = await Register.find({ endDate });
             res.status(200).json(register);
         } catch (error) {
             console.error('Error al listar los registros por fecha de finalizacion:', error);
@@ -163,7 +188,7 @@ const httpRegisters = {
     // Actualizar los datos del registro 
     updateRegisterById: async (req, res) => {
         const { id } = req.params;
-        const { iidApprentice, idModality, startDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany } = req.body;
+        const { startDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany } = req.body;
         try {
             const registerID = await Register.findById(id);
             if (!registerID) {
@@ -176,7 +201,7 @@ const httpRegisters = {
             endDate.setDate(endDate.getDate() - 1);
 
             const updatedRegister = await Register.findByIdAndUpdate(
-                id, { idApprentice, idModality, startDate, endDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany },
+                id, { startDate, endDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany },
                 { new: true }
             );
 
@@ -211,14 +236,9 @@ const httpRegisters = {
     },
     updateRegisterModality: async (req, res) => {
         const { id } = req.params;
-        const { modality } = req.body;
+        const { idModality, docAlternative } = req.body;
         try {
-            const modalityID = await Modality.findById(id);
-            if (!modalityID) {
-                return res.status(404).json({ msg: "Modalidad no encontrada" });
-            }
-
-            const updatedModality = await Register.findByIdAndUpdate(id, { modality }, { new: true });
+            const updatedModality = await Register.findByIdAndUpdate(id, { idModality, docAlternative }, { new: true });
             if (!updatedModality) {
                 return res.status(404).json({ message: 'Registro no encontrado' });
             }
@@ -228,7 +248,6 @@ const httpRegisters = {
             res.status(500).json({ error: 'Error al actualizar modalidad' });
         }
     }
-
 };
 
 export default httpRegisters
