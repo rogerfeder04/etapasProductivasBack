@@ -1,5 +1,6 @@
 import Apprentice from '../models/apprentice.js';
 import Register from '../models/register.js';
+import { generateJWT } from '../middleware/validate-apprentice.js';
 import readline from 'readline';
 import { Readable } from 'stream';
 
@@ -56,6 +57,26 @@ const httpApprentices = {
             res.status(500).json({ error: error.message });
         }
     },
+    // Login aprendices
+    loginApprentice: async (req, res) => {
+        const { email, numDocument } = req.body;
+        try {
+            // Verificar si el usuario existe y si la contraseña es correcta
+            const apprentice = await Apprentice.findOne({ email });
+
+            // Generar token JWT
+            const token = await generateJWT(apprentice._id);
+
+            res.json({
+                apprentice,
+                token,
+            });
+        } catch (error) {
+            console.error('Error en login:', error);
+            res.status(500).json({ msg: "Hable con el WebMaster" });
+        }
+    },
+
     // Crear Aprendiz y pre-registro
     addApprenticenPreregister: async (req, res) => {
         const { fiche, tpDocument, numDocument, firstName, lastName, phone, email, modality } = req.body;

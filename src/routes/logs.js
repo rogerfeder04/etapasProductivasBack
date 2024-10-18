@@ -1,7 +1,7 @@
 import httpLog from "../controllers/logs.js"
 import express from 'express';
 import { check } from 'express-validator';
-import {validarCampos} from "../middleware/validarCampos.js";
+import {validateFields} from "../middleware/validate-fields.js";
 import logHelper from "../helpers/logs.js"
 const router = express.Router();
 
@@ -12,26 +12,26 @@ router.get('/listlogs',[
 
 router.get('/listlogs/:id',[
     check('id').custom(logHelper.existeLogID),
-    // validarCampos
+    // validateFields
 ],httpLog.listById);
 
 
 
 router.post('/addlog',[
     check(),
-    // validarCampos
+    // validateFields
 ], httpLog.addLog);
 
 
 router.put('/enablelogsbyid/:id',[
     check(),
-    // validarCampos
+    // validateFields
 ],httpLog. enableLog);
 
 
 router.put('/disablelogsbyid/:id',[
     check(),
-    // validarCampos
+    // validateFields
 ],httpLog. disableLog);
 
 

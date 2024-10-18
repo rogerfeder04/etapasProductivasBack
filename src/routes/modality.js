@@ -2,8 +2,8 @@ import httpModality from "../controllers/modality.js"
 import express from 'express';
 import { check } from 'express-validator'
 import modalityHelper from "../helpers/modality.js";
-import validarCampos from "../middleware/validarCampos.js"
-import { validateRepfora } from "../middleware/validarJWT.js"
+import validateFields from "../middleware/validate-fields.js"
+import { validateRepfora } from "../middleware/validate-admin.js"
 
 
 const router = express.Router();
@@ -30,7 +30,7 @@ router.post('/addmodality', [
     check('hourInstructorFollow', "La hora del seguimiento del instructor debe ser un número").optional().isNumeric(),
     check("hourInstructorTechnical", "El número de horas del instructor técnico debe ser un número").optional().isNumeric(),
     check("hourInstructorProject", "El número de horas del proyecto debe ser un número").optional().isNumeric(),
-    validarCampos
+    validateFields
 ], httpModality.addModality);
 
 
@@ -44,7 +44,7 @@ router.put('/updatemodalitybyid/:id', [
     check('hourInstructorFollow', "La hora del seguimiento del instructor es obligatoria").isNumeric(),
     check("hourInstructorTechnical", "La contraseña es obligatoria").not().isEmpty().isNumeric(),
     check("hourInstructorProject", "La contraseña es obligatoria").not().isEmpty().isNumeric(),
-    validarCampos
+    validateFields
 ], httpModality.updateModalityById);
 
 //Activar una modalidad
@@ -52,7 +52,7 @@ router.put('/enablemodalitybyid/:id', [
     validateRepfora,
     check('id', 'No es un ID válido').isMongoId(),
     check('id').custom(modalityHelper.existeModalityID),
-    validarCampos
+    validateFields
 ], httpModality.enableModalityById);
 
 //Desactivar  una modalidad
@@ -60,7 +60,7 @@ router.put('/disablemodalitybyid/:id', [
     validateRepfora,
     check('id', 'No es un ID válido').isMongoId(),
     check('id').custom(modalityHelper.existeModalityID),
-    validarCampos
+    validateFields
 ], httpModality.disableModalityById);
 
 export default router;

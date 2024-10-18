@@ -1,7 +1,7 @@
 import httpBinnacles from "../controllers/binnacles.js"
 import express from 'express';
 import { check } from 'express-validator';
-import validarCampos from "../middleware/validarCampos.js";
+import validateFields from "../middleware/validate-fields.js";
 import binnacleHelper from "../helpers/binnacles.js"
 // import {validarJWT} from "../middleware/validarJWT.js"
 
@@ -10,28 +10,28 @@ const router = express.Router();
 
 router.get('/listallbinnacles',[
     // validarJWT,
-    validarCampos
+    validateFields
 ],httpBinnacles.listBinnacles);
 
 
 router.get('/listbinnaclesbyid/:id',[
     // validarJWT,
     check('id').custom(binnacleHelper.existeBinnacleID),
-    validarCampos
+    validateFields
 ],httpBinnacles.listById);
 
 
 router.get('/listbinnaclesbyassignment/:assigment', [
     // validarJWT,
     check('assigment').custom(binnacleHelper.existeAssignmentID),
-    validarCampos
+    validateFields
 ],httpBinnacles.listarByAssignment);
 
 
 router.get('/listbinnaclesbyinstructor/:instructor', [
     // validarJWT,
     check('instructor').custom(binnacleHelper.existeInstructortID),
-    validarCampos
+    validateFields
 ],httpBinnacles.listarByInstructor);
 
 router.post('/addbinnacles',[
@@ -43,7 +43,7 @@ router.post('/addbinnacles',[
     check('users', 'este campo es obligatorio').not().isEmpty(),
     check('assigment').custom(binnacleHelper.existeAssignmentID),
     check('assigment').custom(binnacleHelper.existeInstructortID),
-    validarCampos
+    validateFields
 ], httpBinnacles.addBinnacle);
 
 router.put('/updatebinnaclebyid/:id',[
@@ -56,21 +56,21 @@ router.put('/updatebinnaclebyid/:id',[
     check('id').custom(binnacleHelper.existeBinnacleID),
     check('assigment').custom(binnacleHelper.existeAssignmentID),
     // check('assigment').custom(binnacleHelper.existeInstructortID),
-    validarCampos
+    validateFields
 ], httpBinnacles. updateBinnacle);
 
 
 router.put('/enablebinnaclebyid/:id',[
     // validarJWT,
     check('id').custom(binnacleHelper.existeBinnacleID),
-    validarCampos
+    validateFields
 ],httpBinnacles. enableBinnacle);
 
 
 router.put('/disablebinnaclebyid/:id',[
     // validarJWT,
     check('id').custom(binnacleHelper.existeBinnacleID),
-    validarCampos
+    validateFields
 ],httpBinnacles. disableBinnacle);
 
 export default router;

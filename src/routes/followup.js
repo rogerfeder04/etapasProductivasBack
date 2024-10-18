@@ -1,7 +1,7 @@
 import express from 'express';
 import httpFollowup  from "./../controllers/followup.js";
 import { check } from 'express-validator';
-import validarCampos from "../middleware/validarCampos.js";
+import validateFields from "../middleware/validate-fields.js";
 //import { followupHelper } from "./../helpers/followup.js";
 //const { validarJWT } = require("../middlewares/validarJWT.js");
 
@@ -9,25 +9,25 @@ const router = express.Router();
 
 router.get('/listallfollowup',[
     //validarJWT,
-    validarCampos
+    validateFields
 ], httpFollowup.listallfollowup);
 
 router.get('/listfollowupbyid/:id',[
     check('id', 'El id proporcionado no es valido').isMongoId(),
     //validarJWT,
-    validarCampos
+    validateFields
 ], httpFollowup.listfollowupbyid);
 
 router.get('/listfollowupbyassignment/:idassigment',[
     check('idassigment', 'El id proporcionado no es valido').isMongoId(),
     //validarJWT,
-    validarCampos
+    validateFields
 ], httpFollowup.listfollowupbyassignment);
 
 router.get('/listfollowupbyinstructor/:idinstructor',[
     check('id', 'El id proporcionado no es valido').isMongoId(),
     //validarJWT,
-    validarCampos
+    validateFields
 ], httpFollowup.listfollowupbyinstructor);
 
 router.post('/addfollowup',[
@@ -44,20 +44,20 @@ router.post('/addfollowup',[
     check('observations.*.user', 'El usuario en cada observación es obligatorio y debe ser un ID de MongoDB válido').notEmpty().isMongoId(),
     check('observations.*.date', 'La fecha en cada observación es obligatoria y debe ser una fecha válida').notEmpty().isDate(),
     //validarJWT,
-    validarCampos    
+    validateFields    
 ], httpFollowup.insertFollowup);
 
 
 router.put('/updatefollowupbyid/:id',[
     check(),
     //validarJWT,
-    validarCampos
+    validateFields
 ], httpFollowup.updatefollowupbyid);
 
 router.put('/updatestatus/:id/:status',[
     check(),
     //validarJWT,
-    validarCampos
+    validateFields
 ], httpFollowup.updatestatus);
 
 

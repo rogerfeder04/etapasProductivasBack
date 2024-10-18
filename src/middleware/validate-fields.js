@@ -1,7 +1,7 @@
 import { validationResult } from 'express-validator';
 
 // Middleware para validar campos
-export const validarCampos = (req, res, next) => {
+export const validateFields = (req, res, next) => {
     const errors = validationResult(req);
 
     if (!errors.isEmpty()) {
@@ -12,4 +12,4 @@ export const validarCampos = (req, res, next) => {
 };
 
 
-export default validarCampos;
+export default validateFields;

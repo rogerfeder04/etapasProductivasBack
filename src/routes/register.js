@@ -2,12 +2,12 @@ import httpRegisters from "../controllers/register.js"
 import express from 'express';
 import { check } from 'express-validator'
 
-import validarCampos from "../middleware/validarCampos.js"
+import validateFields from "../middleware/validate-fields.js"
 import  modalityHelper from "../helpers/modality.js";
 import  apprenticeHelper from "../helpers/apprentices.js";
 import  registerHelper from "../helpers/register.js";
 import { ficheHelper } from "../helpers/repfora.js"
-import { validateRepfora } from "../middleware/validarJWT.js";
+import { validateRepfora } from "../middleware/validate-admin.js";
 
 
 const router = express.Router();
@@ -24,7 +24,7 @@ router.get('/listregisterbyid/:id', [
     validateRepfora,
     check('id', 'Este campo es obligatorio').not().isEmpty(),
     check('id').custom(registerHelper.existeRegisterID),
-    validarCampos
+    validateFields
 ], httpRegisters.listRegisterById);
 
 
@@ -32,7 +32,7 @@ router.get('/listregisterbyid/:id', [
 router.get('/listregisterbyapprentice/:idApprentice', [
     validateRepfora,
     check('idApprentice').custom(apprenticeHelper.existApprenticeID),
-    validarCampos
+    validateFields
 ], httpRegisters.listRegisterByApprentice);
 
 // Listar registros por ID de ficha
@@ -40,26 +40,26 @@ router.get('/listregistersbyfiche/:idFiche', [
     validateRepfora,
     check('idFiche').custom(async (idFiche, { req }) =>
         {await ficheHelper.existsFicheID(idFiche, req.headers.token)}),
-    validarCampos
+    validateFields
 ], httpRegisters.listRegistersByFiche);
 
 // Listar registros por ID de modalidad
 router.get('/listregisterbymodality/:idModality', [
     validateRepfora,
     check('idModality').custom(modalityHelper.existeModalityID),
-    validarCampos
+    validateFields
 ], httpRegisters.listRegisterByModality);
 
 // Listar los registros por fecha de inicio 
 router.get('/listregisterbystartdate/:startdate', [
     validateRepfora,
-    validarCampos
+    validateFields
 ], httpRegisters.listRegisterByStartDate);
 
 // Listar los registros por fecha de finalización
 router.get('/listregisterbyenddate/:enddate', [
     validateRepfora,
-    validarCampos
+    validateFields
 ], httpRegisters.listRegisterByEndDate);
 
 
@@ -80,7 +80,7 @@ router.post('/addregister', [
     check("businessProyectHour", "Las horas de instruntor de proyecto empresarial son obligatorias").notEmpty().isNumeric(),
     check("productiveProjectHour", "Las horas de instructor de proyecto productivo son obligatorias").notEmpty().isNumeric(),
     check("mailCompany", "El correo de la empresa es obligatorio").notEmpty(),
-    validarCampos
+    validateFields
 ], httpRegisters.addRegister);
 
 
@@ -101,7 +101,7 @@ router.put('/updateregisterbyid/:id', [
     check("businessProyectHour", "Las horas de instructor de proyecto empresarial son obligatorias").optional({ nullable: true }).isNumeric(),
     check("productiveProjectHour", "Las horas de instructor de proyecto productivo son obligatorias").optional({ nullable: true }).isNumeric(),
     check("mailCompany", "El correo de la compañía es obligatorio").optional({ nullable: true }).notEmpty(),    
-    validarCampos
+    validateFields
 ], httpRegisters.updateRegisterById);
 
 // Actualizar la modalidad de registro.
@@ -111,7 +111,7 @@ router.put('/updatemodalityregister/:id', [
     check('idModality').custom(modalityHelper.existeModalityID),
     check('docAlternative', 'El documento alternativo es obligatorio').notEmpty(),
     check('docAlternative').custom(registerHelper.verifyDocAlternative),
-    validarCampos
+    validateFields
 ], httpRegisters.updateRegisterModality);
 
 
@@ -120,7 +120,7 @@ router.put('/enableregister/:id', [
     validateRepfora,
     check('id', 'Es mongo id').not().isEmpty(),
     check('id').custom(registerHelper.existeRegisterID),
-    validarCampos
+    validateFields
 ], httpRegisters.enableRegister);
 
 
@@ -128,7 +128,7 @@ router.put('/enableregister/:id', [
 router.put('/disabledesactivateregister/:id', [
     check('id', 'Es mongo id').not().isEmpty(),
     check('id').custom(registerHelper.existeRegisterID),
-    validarCampos
+    validateFields
 ], httpRegisters.disableDesactivateRegister);
 
 

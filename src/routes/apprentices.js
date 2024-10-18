@@ -2,8 +2,8 @@ import express from 'express';
 import { check } from "express-validator";
 import multer from 'multer';
 import httpApprentices from "../controllers/apprentices.js";
-import validarCampos from "../middleware/validarCampos.js";
-import { validateRepfora } from "../middleware/validarJWT.js"
+import validateFields from "../middleware/validate-fields.js";
+import { validateRepfora } from "../middleware/validate-admin.js"
 import apprenticeHelper from "../helpers/apprentices.js";
 import ficheHelper from "../helpers/repfora.js"
 import modalityHelper from "../helpers/modality.js";
@@ -20,7 +20,7 @@ router.get('/listapprenticebyid/:id', [
     validateRepfora,
     check('id', 'El ID no es valido').isMongoId(),
     check('id').custom(apprenticeHelper.existApprenticeID),
-    validarCampos
+    validateFields
 ], httpApprentices.listApprenticesByID);
 
 router.get('/listapprenticebyfiche/:idfiche', [
@@ -31,12 +31,16 @@ router.get('/listapprenticebyfiche/:idfiche', [
     })
     .withMessage('ID de ficha es obligatorio'),
 
-    validarCampos
+    validateFields
 ], httpApprentices.listApprenticesByFiche);
 
 router.get('/listapprenticebystatus/:status', [
     validateRepfora
 ], httpApprentices.listApprenticeByStatus);  // Coma adicional removida
+
+router.post('/loginApprentice', [
+
+], httpApprentices.loginApprentice)
 
 router.post('/addapprentice', [
     validateRepfora,
@@ -54,7 +58,7 @@ router.post('/addapprentice', [
     check('email', 'el email es obligatorio').notEmpty(),
     check('modality', 'No es un ID válido').isMongoId(),
     check('modality').custom(modalityHelper.existeModalityID),
-    validarCampos
+    validateFields
 ], httpApprentices.addApprenticenPreregister);
 
 // router.post('/addapprentice', [
@@ -71,7 +75,7 @@ router.post('/addapprentice', [
 //     check('lastName', 'el apellido es obligatorio').notEmpty(),
 //     check('phone', 'el telefono es obligatorio').notEmpty(),
 //     check('email', 'el email es obligatorio').notEmpty(),
-//     validarCampos
+//     validateFields
 // ], httpApprentices.addApprenticenPreregister);
 
 router.post('/upload', upload.single('file'), async (req, res) => {
@@ -98,20 +102,20 @@ router.put('/updateapprenticebyid/:id', [
     check('lastName', 'El apellido es obligatorio').optional().notEmpty(),
     check('phone', 'El teléfono es obligatorio').optional().notEmpty(),
     check('email', 'El email es obligatorio').optional().notEmpty(),
-    validarCampos
+    validateFields
 ], httpApprentices.updateApprenticeByID);
 
 
 router.put('/enableapprentice/:id', [
     validateRepfora,
     check('id').custom(apprenticeHelper.existApprenticeID),
-    validarCampos
+    validateFields
 ], httpApprentices.enableApprencice);
 
 router.put('/disableapprentice/:id', [
     validateRepfora,
     check('id').custom(apprenticeHelper.existApprenticeID),
-    validarCampos
+    validateFields
 ], httpApprentices.disableApprentice);
 
 export default router;

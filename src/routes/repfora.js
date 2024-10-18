@@ -2,7 +2,7 @@ import express from 'express';
 import { check } from 'express-validator';
 import useRepfora from '../controllers/repfora.js'
 import authetication from '../services/authService.js'
-import { validateRepfora } from '../middleware/validarJWT.js'
+import { validateRepfora } from '../middleware/validate-admin.js'
 // import validarCampos from '../middleware/validarCampos.js';
 // import ficheHelper from '../helpers/repfora.js'
 
@@ -25,6 +25,8 @@ router.get('/fiches/:id', [
 ], useRepfora.listafichebyid);
 
 router.post('/login', [], useRepfora.login)
+
+router.post('/logininstructors', [], useRepfora.logininstructos)
 
 router.post('/validate', [], validateRepfora);
 
