@@ -3,25 +3,30 @@ import { check } from 'express-validator';
 import useRepfora from '../controllers/repfora.js'
 import authetication from '../services/authService.js'
 import { validateRepfora } from '../middleware/validate-admin.js'
+import { validate }  from '../middleware/validateJWT.js'
 // import validarCampos from '../middleware/validarCampos.js';
 // import ficheHelper from '../helpers/repfora.js'
 
 const router = express.Router();
 
+// router.get('/instructors', [
+//   validateRepfora,
+// ], useRepfora.listallinstructors);
+
 router.get('/instructors', [
-  validateRepfora,
+  validate.validateRepfora,
 ], useRepfora.listallinstructors);
 
 router.get('/instructors/:id', [
-  validateRepfora
+  validate.validateRepfora,
 ], useRepfora.listinstructorbyid);
 
 router.get('/fiches', [
-  validateRepfora
+  validate.validateRepfora,
 ], useRepfora.listallfiches);
 
 router.get('/fiches/:id', [
-  validateRepfora
+  validate.validateRepfora,
 ], useRepfora.listafichebyid);
 
 router.post('/login', [], useRepfora.login)
