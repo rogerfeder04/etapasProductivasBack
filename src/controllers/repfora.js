@@ -22,7 +22,7 @@ const useRepfora = {
   logininstructos: async (req, res) => {
     const { email, password } = req.body;
     try {
-      const response = await axios.post(`${REP_FORA}/api/instructors/login`, { email, password, role });
+      const response = await axios.post(`${REP_FORA}/api/instructors/login`, { email, password });
       const token = response.data.token;
       console.log('Token recibido', token);
       res.json({ token });

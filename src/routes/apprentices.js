@@ -39,7 +39,6 @@ router.get('/listapprenticebystatus/:status', [
 ], httpApprentices.listApprenticeByStatus);  // Coma adicional removida
 
 router.post('/loginApprentice', [
-
 ], httpApprentices.loginApprentice)
 
 router.post('/addapprentice', [

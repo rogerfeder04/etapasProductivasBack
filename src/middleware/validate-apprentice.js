@@ -17,7 +17,7 @@ const generateJWT = (uid) => {
 };
 
 const validateJWT = async (req, res, next) => {
-    const token = req.header("oken");
+    const token = req.header("token");
     if (!token) {
         return res.status(401).json({
             msg: "Error en la petición"

@@ -61,9 +61,13 @@ const httpApprentices = {
     loginApprentice: async (req, res) => {
         const { email, numDocument } = req.body;
         try {
-            // Verificar si el usuario existe y si la contraseña es correcta
-            const apprentice = await Apprentice.findOne({ email });
+            const apprentice = await Apprentice.findOne({ email, numDocument });
 
+            if (!apprentice || apprentice.status === 0) {
+                return res.status(401).json({
+                    msg: "Datos del Aprendiz son incorrectos",
+                });
+            }
             // Generar token JWT
             const token = await generateJWT(apprentice._id);
 
