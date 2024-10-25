@@ -54,7 +54,8 @@ router.post('/addapprentice', [
     check('firstName', 'el nombre es obligatorio').notEmpty(),
     check('lastName', 'el apellido es obligatorio').notEmpty(),
     check('phone', 'el telefono es obligatorio').notEmpty(),
-    check('email', 'el email es obligatorio').notEmpty(),
+    check('personalEmail', 'el email es obligatorio').notEmpty(),
+    check('institutionalEmail', 'el email es obligatorio').notEmpty(),
     check('modality', 'No es un ID válido').isMongoId(),
     check('modality').custom(modalityHelper.existeModalityID),
     validateFields

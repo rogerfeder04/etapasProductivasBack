@@ -83,10 +83,10 @@ const httpApprentices = {
 
     // Crear Aprendiz y pre-registro
     addApprenticenPreregister: async (req, res) => {
-        const { fiche, tpDocument, numDocument, firstName, lastName, phone, email, modality } = req.body;
+        const { fiche, tpDocument, numDocument, firstName, lastName, phone, personalEmail, institutionalEmail, modality } = req.body;
 
         try {
-            const newApprentice = new Apprentice({ fiche, tpDocument, numDocument, firstName, lastName, phone, email });
+            const newApprentice = new Apprentice({ fiche, tpDocument, numDocument, firstName, lastName, phone, personalEmail, institutionalEmail, modality });
             const apprenticeCreated = await newApprentice.save();
 
             const newRegister = new Register({

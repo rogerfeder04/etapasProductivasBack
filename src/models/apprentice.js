@@ -9,6 +9,7 @@ const apprenticeShema = new mongoose.Schema({
     phone: { type: String, required: true },
     personalEmail: { type: String, required: true },
     institutionalEmail: { type: String, required: true },
+    modality: { type: mongoose.Schema.Types.ObjectId, ref: 'Modality' },
     status: { type: Number, required: true, default: 1 },
 }, { timestamps: true })
 

@@ -8,7 +8,7 @@ const registerSchema = new mongoose.Schema({
             followUpInstructor: { idInstructor: mongoose.Schema.Types.ObjectId, name: String },
             technicalInstructor: { idInstructor: mongoose.Schema.Types.ObjectId, name: String },
             projectInstructor: { idInstructor: mongoose.Schema.Types.ObjectId, name: String },
-            status: { type: Number, required: true },
+            status: { type: Number },
         }],
     startDate: { type: Date },
     endDate: { type: Date },
@@ -21,8 +21,8 @@ const registerSchema = new mongoose.Schema({
     businessProyectHour: { type: Number },
     productiveProjectHour: { type: Number },
     mailCompany: { type: String },
-    certificationDoc: { type: String, required: true },
-    judymentPhoto: { type: String, required: true },
+    certificationDoc: { type: String},
+    judymentPhoto: { type: String },
     status: { type: Number, default: 1 }
 }, { timestamps: true });
 
