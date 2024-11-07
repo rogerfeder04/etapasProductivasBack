@@ -241,6 +241,23 @@ const httpApprentices = {
         } catch (error) {
             res.status(500).json({ message: error.message });
         }
+    },
+    //Estado Certificado Aprendiz
+    certificateApprentice: async (req, res) => {
+        const { id } = req.params;
+        try {
+            const apprentice = await Apprentice.findById(id);
+            if (!apprentice) {
+                return res.status(404).json({ message: 'Aprendiz no encontrado' });
+            } else if (!apprentice.status === 3) {
+                return res.status(400).json({ message: "El aprendiz no cumple con las condiciones para certificarse." });
+            }
+            apprentice.status = 4
+            await apprentice.save();
+            res.json({ message: "Información de certifición del Aprendiz validada correctamente", apprentice });
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
     }
 };
 

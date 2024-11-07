@@ -12,7 +12,7 @@ const apprenticeShema = new mongoose.Schema({
     modality: { type: mongoose.Schema.Types.ObjectId, ref: 'Modality' },
     hoursExecutedPS: { type: Number },
     hoursPendingPS: { type: Number },
-    hoursTotalPE: { type: Number, default: 864 },
+    hoursTotalPS: { type: Number, default: 864 },
     status: { type: Number, required: true, default: 1 },
 }, { timestamps: true })
 

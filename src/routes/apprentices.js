@@ -106,6 +106,7 @@ router.put('/updateapprenticebyid/:id', [
 ], httpApprentices.updateApprenticeByID);
 
 
+
 router.put('/enableapprentice/:id', [
     validateRepfora,
     check('id').custom(apprenticeHelper.existApprenticeID),
