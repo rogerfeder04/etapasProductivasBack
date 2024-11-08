@@ -57,6 +57,18 @@ const httpApprentices = {
             res.status(500).json({ error: error.message });
         }
     },
+    listHistoryProgramsApprenticeByID: async (req, res) => {
+        const { numDocument } = req.params;
+        try {
+            const apprentice = await Apprentice.find( Apprentice.numDocument(numDocument))
+            if (!apprentice) {
+                return res.status(404).json({ message: 'El aprendiz no tiene historial de programas cursados.' });
+            }
+            res.json({ apprentice });
+        } catch (error){
+            res.status(500).json({ error: error.message })
+        }
+    },
     // Login aprendices
     loginApprentice: async (req, res) => {
         const { email, numDocument } = req.body;
