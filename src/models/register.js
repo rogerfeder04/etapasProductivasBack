@@ -5,9 +5,27 @@ const registerSchema = new mongoose.Schema({
     idModality: { type: mongoose.Schema.Types.ObjectId, ref: 'Modality' },
     assignament: [
         {
-            followUpInstructor: { idInstructor: mongoose.Schema.Types.ObjectId, name: String, email: String, hour: Number, status: Number },
-            technicalInstructor: { idInstructor: mongoose.Schema.Types.ObjectId, name: String, email: String, hour: Number, status: Number},
-            projectInstructor: { idInstructor: mongoose.Schema.Types.ObjectId, name: String, email: String, hour: Number, status: Number },
+            followUpInstructor: [{
+                idInstructor: { type: mongoose.Schema.Types.ObjectId },
+                name: { type: String },
+                email: { type: String },
+                status: { type: Number },
+                _id: False
+            }],
+            technicalInstructor: [{
+                idInstructor: { type: mongoose.Schema.Types.ObjectId },
+                name: { type: String },
+                email: { type: String },
+                status: { type: Number },
+                _id: False
+            }],
+            projectInstructor: [{
+                idInstructor: { type: mongoose.Schema.Types.ObjectId },
+                name: { type: String },
+                email: { type: String },
+                status: { type: Number },
+                _id: False
+            }],
             status: { type: Number },
         }],
     startDate: { type: Date },
@@ -25,7 +43,7 @@ const registerSchema = new mongoose.Schema({
     businessProyectHourPending: [{ idInstructor: mongoose.Schema.Types.ObjectId, name: String, hour: Number }],
     hourProductiveStageApprentice: { type: Number },
     mailCompany: { type: String },
-    certificationDoc: { type: String},
+    certificationDoc: { type: String },
     judymentPhoto: { type: String },
     status: { type: Number, default: 1 }
 }, { timestamps: true });
