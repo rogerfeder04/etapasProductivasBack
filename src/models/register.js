@@ -10,21 +10,21 @@ const registerSchema = new mongoose.Schema({
                 name: { type: String },
                 email: { type: String },
                 status: { type: Number },
-                _id: False
+                _id: false
             }],
             technicalInstructor: [{
                 idInstructor: { type: mongoose.Schema.Types.ObjectId },
                 name: { type: String },
                 email: { type: String },
                 status: { type: Number },
-                _id: False
+                _id: false
             }],
             projectInstructor: [{
                 idInstructor: { type: mongoose.Schema.Types.ObjectId },
                 name: { type: String },
                 email: { type: String },
                 status: { type: Number },
-                _id: False
+                _id: false
             }],
             status: { type: Number },
         }],
