@@ -46,58 +46,58 @@ const httpRegisters = {
         }
     },
 
-// Listar registros por ID de ficha
-listRegistersByFiche: async (req, res) => {
-    const { idFiche } = req.params;
-    console.log(`ID de ficha recibido: ${idFiche}`);
-    
-    try {
-      const registers = await Register.aggregate([
-        {
-          $lookup: {
-            from: "apprentices",
-            localField: "idApprentice",
-            foreignField: "_id",
-            as: "apprentice",
-          },
-        },
-        {
-          $unwind: "$apprentice",
-        },
- 
-        {
-          $match: {
-            "apprentice.fiche.idFiche": new mongoose.Types.ObjectId(idFiche),
-          },
-        },
-        {
-          $project: {
-            _id: 1,
-            ficheid:"$apprentice.fiche",
-            idApprentice: 1,
-            idModality: 1,
-            startDate:1,
-            endDate:1,
-            company:1,
-            phoneCompany: 1,
-            addressCompany:1,
-            owner: 1,
-            docAlternative:1,
-            hour : 1,
-            businessProyectHour: 1,
-            productiveProjectHour: 1,
-            status: 1,
-            mailCompany :1,
-          },
-        },
-      ]);
-      console.log(`Registros encontrados: ${JSON.stringify(registers, null, 2)}`);
-      res.json({ success: true, data: registers });
-    } catch (error) {
-      console.log(`Error al listar idfiche en register: ${idFiche}`, error);
-      res.status(500).json({ error: "Error al listar idfiche en register" });
-    }
-  },
+    // Listar registros por ID de ficha
+    listRegistersByFiche: async (req, res) => {
+        const { idFiche } = req.params;
+        console.log(`ID de ficha recibido: ${idFiche}`);
+
+        try {
+            const registers = await Register.aggregate([
+                {
+                    $lookup: {
+                        from: "apprentices",
+                        localField: "idApprentice",
+                        foreignField: "_id",
+                        as: "apprentice",
+                    },
+                },
+                {
+                    $unwind: "$apprentice",
+                },
+
+                {
+                    $match: {
+                        "apprentice.fiche.idFiche": new mongoose.Types.ObjectId(idFiche),
+                    },
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        ficheid: "$apprentice.fiche",
+                        idApprentice: 1,
+                        idModality: 1,
+                        startDate: 1,
+                        endDate: 1,
+                        company: 1,
+                        phoneCompany: 1,
+                        addressCompany: 1,
+                        owner: 1,
+                        docAlternative: 1,
+                        hour: 1,
+                        businessProyectHour: 1,
+                        productiveProjectHour: 1,
+                        status: 1,
+                        mailCompany: 1,
+                    },
+                },
+            ]);
+            console.log(`Registros encontrados: ${JSON.stringify(registers, null, 2)}`);
+            res.json({ success: true, data: registers });
+        } catch (error) {
+            console.log(`Error al listar idfiche en register: ${idFiche}`, error);
+            res.status(500).json({ error: "Error al listar idfiche en register" });
+        }
+    },
     //segunda opcion:
     // listRegistersByFiche:async (req, res) => {
     //     try {
@@ -146,7 +146,7 @@ listRegistersByFiche: async (req, res) => {
     listRegisterByStartDate: async (req, res) => {
         const { startDate } = req.params; // Obtén el valor de StartDate desde los parámetros de consulta
 
-        try {   
+        try {
             const register = await Register.find({ startDate });
             res.status(200).json(register);
         } catch (error) {
@@ -170,21 +170,118 @@ listRegistersByFiche: async (req, res) => {
     },
 
     // Añadir  Registro:
+    // addRegister: async (req, res) => {
+    //     const { idApprentice, idModality, startDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany } = req.body;
+    //     try {
+    //         const start = new Date(startDate);
+    //         const endDate = new Date(start);
+    //         endDate.setMonth(endDate.getMonth() + 6);
+    //         endDate.setDate(endDate.getDate() - 1);
+
+    //         const newRegister = new Register({ idApprentice, idModality, startDate, endDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany });
+    //         const RegisterCreate = await newRegister.save();
+    //         res.status(201).json(RegisterCreate);
+    //     } catch (error) {
+    //         res.status(400).json({ message: error.message });
+    //     }
+    // },
     addRegister: async (req, res) => {
-        const { idApprentice, idModality, startDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany } = req.body;
+        const {
+            idApprentice,
+            idModality,
+            startDate,
+            company,
+            phoneCompany,
+            addressCompany,
+            owner,
+            docAlternative,
+            certificationDoc,
+            mailCompany,
+            judymentPhoto,
+            hourProductiveStageApprentice,
+            assignment
+        } = req.body;
+
         try {
             const start = new Date(startDate);
+            if (isNaN(start)) {
+                return res.status(400).json({ message: "startDate no es una fecha válida" });
+            }
+
+            const modalityData = await Modality.findById(idModality);
+            if (!modalityData) {
+                return res.status(400).json({ message: "Modalidad no encontrada" });
+            }
+            const { name } = modalityData;
+
+            const validateInstructors = (requiredInstructors) => {
+                if (!assignment) return null; // Si assignment no está definido, omitir validación de instructores
+
+                const providedInstructors = Object.keys(assignment);
+                const missingInstructors = requiredInstructors.filter(instructor => !providedInstructors.includes(instructor));
+                const invalidInstructors = providedInstructors.filter(instructor => !requiredInstructors.includes(instructor));
+
+                if (missingInstructors.length > 0) {
+                    return `Se requieren los instructores: ${missingInstructors.join(", ")}`;
+                }
+                if (invalidInstructors.length > 0) {
+                    return `Instructores no permitidos: ${invalidInstructors.join(", ")}`;
+                }
+                return null;
+            };
+
+            let instructorError = null;
+            if (name === "PROYECTO EMPRESARIAL" || name === "PROYECTO PRODUCTIVO I+D") {
+                instructorError = validateInstructors(["projectInstructor", "technicalInstructor", "followUpInstructor"]);
+            } else if (name === "PROYECTO SOCIAL" || name === "PROYECTO PRODUCTIVO") {
+                instructorError = validateInstructors(["followUpInstructor", "technicalInstructor"]);
+            } else if (["PASANTIA", "VÍNCULO LABORAL", "MONITORIAS", "UNIDAD PRODUCTIVA FAMILIAR", "CONTRATO DE APRENDIZAJE"].includes(name)) {
+                instructorError = validateInstructors(["followUpInstructor"]);
+            } else {
+                instructorError = validateInstructors(["followUpInstructor"]);
+            }
+
+            if (instructorError) {
+                return res.status(400).json({ message: instructorError });
+            }
+
+            const apprenticeCount = Array.isArray(idApprentice) ? idApprentice.length : 1;
+            const singleApprenticeModalities = ["VÍNCULO LABORAL", "MONITORIAS", "PASANTIA", "UNIDAD PRODUCTIVA FAMILIAR", "CONTRATO DE APRENDIZAJE"];
+
+            if (singleApprenticeModalities.includes(name) && apprenticeCount !== 1) {
+                return res.status(400).json({ message: "Solo se permite 1 aprendiz para esta modalidad" });
+            } else if (!singleApprenticeModalities.includes(name) && apprenticeCount < 1) {
+                return res.status(400).json({ message: "Se requiere al menos 1 aprendiz para esta modalidad" });
+            }
+
             const endDate = new Date(start);
             endDate.setMonth(endDate.getMonth() + 6);
             endDate.setDate(endDate.getDate() - 1);
 
-            const newRegister = new Register({ idApprentice, idModality, startDate, endDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany });
-            const RegisterCreate = await newRegister.save();
-            res.status(201).json(RegisterCreate);
+            const newRegister = new Register({
+                idApprentice,
+                idModality,
+                startDate,
+                endDate,
+                company,
+                phoneCompany,
+                addressCompany,
+                mailCompany,
+                owner,
+                docAlternative,
+                certificationDoc,
+                judymentPhoto,
+                hourProductiveStageApprentice,
+                assignment
+            });
+            const createdRegister = await newRegister.save();
+            res.status(201).json({ success: true, data: createdRegister });
         } catch (error) {
-            res.status(400).json({ message: error.message });
+            console.error("Error al crear registro:", error);
+            res.status(400).json({ message: error.message || "Error al crear el registro" });
         }
     },
+
     // Actualizar los datos del registro 
     updateRegisterById: async (req, res) => {
         const { id } = req.params;
