@@ -64,22 +64,23 @@ router.get('/listregisterbyenddate/:enddate', [
 
 
 router.post('/addregister', [
-    validateRepfora,
-    check('idApprentice', 'Este ID no es valido').isMongoId(),
-    check('idApprentice', 'Este campo es obligatorio').notEmpty(),
-    check('idApprentice').custom(apprenticeHelper.existApprenticeID),
-    check('idModality', 'Este ID no es valido').isMongoId(),
-    check('idModality', 'Este campo es obligatorio').notEmpty(),
-    check('idModality').custom(modalityHelper.existeModalityID),
-    check("startDate", "La fecha de inicio es obligatorio").notEmpty().isDate(),
-    check("company", "La compañia es obligatoria").notEmpty(),
-    check("phoneCompany", "El telefono es obligatorio").notEmpty().isNumeric().isLength({ min: 10}),
-    check("addressCompany", "La direccion es obligatorio").notEmpty(),
-    check("owner", "El dueño es obligatori@").notEmpty(),
-    check("hour", "Las horas son obligatorias").not().isEmpty().isNumeric(),
-    check("businessProyectHour", "Las horas de instruntor de proyecto empresarial son obligatorias").notEmpty().isNumeric(),
-    check("productiveProjectHour", "Las horas de instructor de proyecto productivo son obligatorias").notEmpty().isNumeric(),
-    check("mailCompany", "El correo de la empresa es obligatorio").notEmpty(),
+    // validateRepfora,
+    
+    // check('idApprentice', 'Este ID no es valido').isMongoId(),
+    // check('idApprentice', 'Este campo es obligatorio').notEmpty(),
+    // check('idApprentice').custom(apprenticeHelper.existApprenticeID),
+    // check('idModality', 'Este ID no es valido').isMongoId(),
+    // check('idModality', 'Este campo es obligatorio').notEmpty(),
+    // check('idModality').custom(modalityHelper.existeModalityID),
+    // check("startDate", "La fecha de inicio es obligatorio").notEmpty().isDate(),
+    // check("company", "La compañia es obligatoria").notEmpty(),
+    // check("phoneCompany", "El telefono es obligatorio").notEmpty().isNumeric().isLength({ min: 10}),
+    // check("addressCompany", "La direccion es obligatorio").notEmpty(),
+    // check("owner", "El dueño es obligatori@").notEmpty(),
+    // check("hour", "Las horas son obligatorias").not().isEmpty().isNumeric(),
+    // check("businessProyectHour", "Las horas de instruntor de proyecto empresarial son obligatorias").notEmpty().isNumeric(),
+    // check("productiveProjectHour", "Las horas de instructor de proyecto productivo son obligatorias").notEmpty().isNumeric(),
+    // check("mailCompany", "El correo de la empresa es obligatorio").notEmpty(),
     validateFields
 ], httpRegisters.addRegister);
 
