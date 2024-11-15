@@ -73,7 +73,11 @@ const httpApprentices = {
     loginApprentice: async (req, res) => {
         const { email, numDocument } = req.body;
         try {
-            const apprentice = await Apprentice.findOne({ email, numDocument });
+
+            const apprentice = await Apprentice.findOne({
+                numDocument,
+                $or: [{ personalEmail: email }, { institutionalEmail: email }]
+            });
 
             if (!apprentice || apprentice.status === 0) {
                 return res.status(401).json({
