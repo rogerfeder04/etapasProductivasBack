@@ -11,8 +11,8 @@ const binnacleSchema= new mongoose.Schema({
         observationDate: { type: Date, default: Date.now }
       }],
     status: {type: Number, required: true, default: 1 },
-    checkTechnicalInstructor: { type:Boolean , default: false },
-    checkProjectInstructor: { type:Boolean , default: false }
+    checkTechnicalInstructor: { type: Boolean , default: false },
+    checkProjectInstructor: { type: Boolean , default: false }
 }, {timestamps:true});
 
 
