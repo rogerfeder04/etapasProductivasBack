@@ -115,6 +115,9 @@ router.put('/updatemodalityregister/:id', [
     validateFields
 ], httpRegisters.updateRegisterModality);
 
+router.put('/addassignment/:id', [
+    validateFields
+  ], httpRegisters.addAssignment);
 
 // Activar un registro
 router.put('/enableregister/:id', [
@@ -124,6 +127,13 @@ router.put('/enableregister/:id', [
     validateFields
 ], httpRegisters.enableRegister);
 
+router.put('/updateassignment/:id', [
+validateFields
+  ], httpRegisters.updateAssignment);
+
+router.get('/listallassignment', httpRegisters.listAllAssignments);
+
+router.get('/listassigmentbyfollowupinstructor/:idinstructor', httpRegisters.listRegisterByFollowUpInstructor);
 
 // Desactivar un registro
 router.put('/disabledesactivateregister/:id', [
