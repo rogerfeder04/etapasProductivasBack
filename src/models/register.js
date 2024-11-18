@@ -5,7 +5,7 @@ const registerSchema = new mongoose.Schema({
     idModality: { type: mongoose.Schema.Types.ObjectId, ref: 'Modality' },
     assignament: [
         {
-            followUpInstructor: [{
+            followupInstructor: [{
                 idInstructor: { type: mongoose.Schema.Types.ObjectId },
                 name: { type: String },
                 email: { type: String },
