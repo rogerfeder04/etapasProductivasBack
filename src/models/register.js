@@ -27,6 +27,7 @@ const registerSchema = new mongoose.Schema({
                 _id: false
             }],
             status: { type: Number },
+            _id: false
         }],
     startDate: { type: Date },
     endDate: { type: Date },
