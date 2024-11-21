@@ -372,26 +372,92 @@ const httpRegisters = {
         }
     },    
 
-      listAllAssignments: async (req, res) => {
+    listAllAssignments: async (req, res) => {
         try {
-          const registers = await Register.find()
-            .select('assignment status') // Incluye el campo de estado
-            .populate('assignment.followupInstructor.idInstructor', 'name')
-            .populate('assignment.technicalInstructor.idInstructor', 'name')
-            .populate('assignment.projectInstructor.idInstructor', 'name');
+          const registers = await Register.aggregate([
+            // Paso 1: Desglosar cada uno de los instructores, solo si existen
+            {
+              $unwind: {
+                path: "$assignment",
+                preserveNullAndEmptyArrays: true, // Mantener los registros aunque no tengan asignación
+              },
+            },
+    
+            // Paso 2: Condicionalmente agregar la información de los instructores, solo si existen
+            {
+              $lookup: {
+                from: "instructors", // Nombre de la colección relacionada con instructores
+                localField: "assignment.followupInstructor.idInstructor",
+                foreignField: "_id",
+                as: "followupInstructorDetails",
+                pipeline: [
+                  { $match: { $expr: { $ne: ["$idInstructor", null] } } },
+                ],
+              },
+            },
+            {
+              $lookup: {
+                from: "instructors",
+                localField: "assignment.technicalInstructor.idInstructor",
+                foreignField: "_id",
+                as: "technicalInstructorDetails",
+                pipeline: [
+                  { $match: { $expr: { $ne: ["$idInstructor", null] } } },
+                ],
+              },
+            },
+            {
+              $lookup: {
+                from: "instructors",
+                localField: "assignment.projectInstructor.idInstructor",
+                foreignField: "_id",
+                as: "projectInstructorDetails",
+                pipeline: [
+                  { $match: { $expr: { $ne: ["$idInstructor", null] } } },
+                ],
+              },
+            },
+    
+            // Paso 3: Filtrar solo aquellos instructores que tienen datos válidos y agregar los detalles
+            {
+              $addFields: {
+                "assignment.followupInstructor.details": {
+                  $arrayElemAt: ["$followupInstructorDetails", 0],
+                },
+                "assignment.technicalInstructor.details": {
+                  $arrayElemAt: ["$technicalInstructorDetails", 0],
+                },
+                "assignment.projectInstructor.details": {
+                  $arrayElemAt: ["$projectInstructorDetails", 0],
+                },
+              },
+            },
+    
+            // Paso 4: Filtrar solo los campos requeridos para retornar la información
+            {
+              $project: {
+                _id: 1,
+                status: 1,
+                assignment: {
+                  followupInstructor: 1,
+                  technicalInstructor: 1,
+                  projectInstructor: 1,
+                },
+              },
+            },
+          ]);
     
           if (!registers.length) {
             return res.status(404).json({ success: false, message: "No se encontraron asignaciones" });
           }
     
-          console.log("Lista de asignaciones", registers);
+          console.log("Lista de asignaciones:", registers);
           res.json({ success: true, data: registers });
         } catch (error) {
-          console.error("Error al listar asignaciones", error);
+          console.error("Error al listar asignaciones:", error);
           res.status(500).json({ success: false, error: "Error al listar asignaciones" });
         }
       },
-    
     
       // Listar registros por ID del instructor de seguimiento
       listRegisterByFollowUpInstructor: async (req, res) => {

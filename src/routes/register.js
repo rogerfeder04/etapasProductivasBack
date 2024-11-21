@@ -89,19 +89,19 @@ router.post('/addregister', [
 // Actualizar los datos del registro
 router.put('/updateregisterbyid/:id', [
     validateRepfora,
-    check('idApprentice', 'Este campo es obligatorio').optional({ nullable: true }).notEmpty(),
-    check('idApprentice').optional({ nullable: true }).custom(apprenticeHelper.existApprenticeID),
-    check('idModality', 'Este campo es obligatorio').optional({ nullable: true }).notEmpty(),
-    check('idModality').optional({ nullable: true }).custom(modalityHelper.existeModalityID),
-    check("startDate", "La fecha de inicio es obligatoria").optional({ nullable: true }).isDate(),
-    check("company", "La compañía es obligatoria").optional({ nullable: true }).notEmpty(),
-    check("phoneCompany", "El teléfono es obligatorio").optional({ nullable: true }).isLength({ min: 10 }),
-    check("addressCompany", "La dirección es obligatoria").optional({ nullable: true }).isLength({ min: 8 }),
-    check("owner", "El dueño es obligatorio").optional({ nullable: true }).notEmpty(),
-    check("hour", "Las horas son obligatorias").optional({ nullable: true }).isNumeric(),
-    check("businessProyectHour", "Las horas de instructor de proyecto empresarial son obligatorias").optional({ nullable: true }).isNumeric(),
-    check("productiveProjectHour", "Las horas de instructor de proyecto productivo son obligatorias").optional({ nullable: true }).isNumeric(),
-    check("mailCompany", "El correo de la compañía es obligatorio").optional({ nullable: true }).notEmpty(),    
+    // check('idApprentice', 'Este campo es obligatorio').optional({ nullable: true }).notEmpty(),
+    // check('idApprentice').optional({ nullable: true }).custom(apprenticeHelper.existApprenticeID),
+    // check('idModality', 'Este campo es obligatorio').optional({ nullable: true }).notEmpty(),
+    // check('idModality').optional({ nullable: true }).custom(modalityHelper.existeModalityID),
+    // check("startDate", "La fecha de inicio es obligatoria").optional({ nullable: true }).isDate(),
+    // check("company", "La compañía es obligatoria").optional({ nullable: true }).notEmpty(),
+    // check("phoneCompany", "El teléfono es obligatorio").optional({ nullable: true }).isLength({ min: 10 }),
+    // check("addressCompany", "La dirección es obligatoria").optional({ nullable: true }).isLength({ min: 8 }),
+    // check("owner", "El dueño es obligatorio").optional({ nullable: true }).notEmpty(),
+    // check("hour", "Las horas son obligatorias").optional({ nullable: true }).isNumeric(),
+    // check("businessProyectHour", "Las horas de instructor de proyecto empresarial son obligatorias").optional({ nullable: true }).isNumeric(),
+    // check("productiveProjectHour", "Las horas de instructor de proyecto productivo son obligatorias").optional({ nullable: true }).isNumeric(),
+    // check("mailCompany", "El correo de la compañía es obligatorio").optional({ nullable: true }).notEmpty(),    
     validateFields
 ], httpRegisters.updateRegisterById);
 

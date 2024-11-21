@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const registerSchema = new mongoose.Schema({
     idApprentice: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Apprentices' }],
     idModality: { type: mongoose.Schema.Types.ObjectId, ref: 'Modality' },
-    assignament: [
+    assignment: [
         {
             followupInstructor: [{
                 idInstructor: { type: mongoose.Schema.Types.ObjectId },
