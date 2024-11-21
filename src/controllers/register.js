@@ -326,7 +326,7 @@ const httpRegisters = {
     
             if (!currentAssignment) {
                 currentAssignment = { status: 1 };
-                register.assignament.push(currentAssignment);
+                register.assignment.push(currentAssignment);
             }
     
             // Actualizar arrays específicos de instructores según modalidad permitida
