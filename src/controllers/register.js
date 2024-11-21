@@ -374,90 +374,32 @@ const httpRegisters = {
 
     listAllAssignments: async (req, res) => {
         try {
-          const registers = await Register.aggregate([
-            // Paso 1: Desglosar cada uno de los instructores, solo si existen
-            {
-              $unwind: {
-                path: "$assignment",
-                preserveNullAndEmptyArrays: true, // Mantener los registros aunque no tengan asignación
-              },
-            },
+            // Obtener todos los registros sin proyección para ver la estructura completa
+            const registers = await Register.find({});
     
-            // Paso 2: Condicionalmente agregar la información de los instructores, solo si existen
-            {
-              $lookup: {
-                from: "instructors", // Nombre de la colección relacionada con instructores
-                localField: "assignment.followupInstructor.idInstructor",
-                foreignField: "_id",
-                as: "followupInstructorDetails",
-                pipeline: [
-                  { $match: { $expr: { $ne: ["$idInstructor", null] } } },
-                ],
-              },
-            },
-            {
-              $lookup: {
-                from: "instructors",
-                localField: "assignment.technicalInstructor.idInstructor",
-                foreignField: "_id",
-                as: "technicalInstructorDetails",
-                pipeline: [
-                  { $match: { $expr: { $ne: ["$idInstructor", null] } } },
-                ],
-              },
-            },
-            {
-              $lookup: {
-                from: "instructors",
-                localField: "assignment.projectInstructor.idInstructor",
-                foreignField: "_id",
-                as: "projectInstructorDetails",
-                pipeline: [
-                  { $match: { $expr: { $ne: ["$idInstructor", null] } } },
-                ],
-              },
-            },
+            // Imprimir los registros completos para ver qué datos están siendo obtenidos
+            console.log("Registros completos:", registers);
     
-            // Paso 3: Filtrar solo aquellos instructores que tienen datos válidos y agregar los detalles
-            {
-              $addFields: {
-                "assignment.followupInstructor.details": {
-                  $arrayElemAt: ["$followupInstructorDetails", 0],
-                },
-                "assignment.technicalInstructor.details": {
-                  $arrayElemAt: ["$technicalInstructorDetails", 0],
-                },
-                "assignment.projectInstructor.details": {
-                  $arrayElemAt: ["$projectInstructorDetails", 0],
-                },
-              },
-            },
+            // Verificar si hay datos
+            if (registers.length === 0) {
+                return res.status(404).json({ success: false, message: "No se encontraron registros" });
+            }
     
-            // Paso 4: Filtrar solo los campos requeridos para retornar la información
-            {
-              $project: {
-                _id: 1,
-                status: 1,
-                assignment: {
-                  followupInstructor: 1,
-                  technicalInstructor: 1,
-                  projectInstructor: 1,
-                },
-              },
-            },
-          ]);
+            // Filtrar los campos necesarios y poblar los instructores dentro de assignment
+            const filteredRegisters = await Register.find({})
+                .populate('assignment.followupInstructor', 'idInstructor name email')
+                .populate('assignment.technicalInstructor', 'idInstructor name email')
+                .populate('assignment.projectInstructor', 'idInstructor name email');
     
-          if (!registers.length) {
-            return res.status(404).json({ success: false, message: "No se encontraron asignaciones" });
-          }
+            console.log("Registros filtrados y poblados:", filteredRegisters);
     
-          console.log("Lista de asignaciones:", registers);
-          res.json({ success: true, data: registers });
+            // Enviar la respuesta con los datos filtrados
+            res.json({ success: true, data: filteredRegisters });
         } catch (error) {
-          console.error("Error al listar asignaciones:", error);
-          res.status(500).json({ success: false, error: "Error al listar asignaciones" });
+            console.error("Error al listar asignaciones:", error);
+            res.status(500).json({ success: false, error: "Error al listar asignaciones" });
         }
-      },
+    },  
     
       // Listar registros por ID del instructor de seguimiento
       listRegisterByFollowUpInstructor: async (req, res) => {
