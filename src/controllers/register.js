@@ -232,13 +232,13 @@ const httpRegisters = {
 
             let instructorError = null;
             if (name === "PROYECTO EMPRESARIAL" || name === "PROYECTO PRODUCTIVO I+D") {
-                instructorError = validateInstructors(["projectInstructor", "technicalInstructor", "followUpInstructor"]);
+                instructorError = validateInstructors(["projectInstructor", "technicalInstructor", "followupInstructor"]);
             } else if (name === "PROYECTO SOCIAL" || name === "PROYECTO PRODUCTIVO") {
-                instructorError = validateInstructors(["followUpInstructor", "technicalInstructor"]);
+                instructorError = validateInstructors(["followupInstructor", "technicalInstructor"]);
             } else if (["PASANTIA", "VÍNCULO LABORAL", "MONITORIAS", "UNIDAD PRODUCTIVA FAMILIAR", "CONTRATO DE APRENDIZAJE"].includes(name)) {
-                instructorError = validateInstructors(["followUpInstructor"]);
+                instructorError = validateInstructors(["followupInstructor"]);
             } else {
-                instructorError = validateInstructors(["followUpInstructor"]);
+                instructorError = validateInstructors(["followupInstructor"]);
             }
 
             if (instructorError) {
@@ -285,7 +285,7 @@ const httpRegisters = {
     addAssignment: async (req, res) => {
         const { id } = req.params;
         const { assignment } = req.body;
-    
+
         try {
             if (!id || typeof id !== "string") {
                 return res.status(400).json({ message: "ID inválido o no proporcionado" });
@@ -293,13 +293,13 @@ const httpRegisters = {
             if (!assignment || typeof assignment !== "object") {
                 return res.status(400).json({ message: "La asignación no es válida" });
             }
-    
+
             // Buscar el registro en la base de datos
             const register = await Register.findById(id).populate('idModality');
             if (!register) {
                 return res.status(404).json({ message: "Registro no encontrado" });
             }
-    
+
             // Modalidades y tipos de instructores permitidos
             const validModalities = {
                 "PASANTIA": ["followupInstructor"],
@@ -311,56 +311,74 @@ const httpRegisters = {
                 "PROYECTO PRODUCTIVO  I+D": ["followupInstructor", "technicalInstructor", "projectInstructor"],
                 "PROYECTO SOCIAL": ["followupInstructor", "technicalInstructor"]
             };
-    
+
             const modalityName = register.idModality.name;
             const allowedAssignments = validModalities[modalityName];
-    
+
             if (!allowedAssignments) {
                 return res.status(400).json({
                     message: `La modalidad "${modalityName}" no permite asignaciones.`
                 });
             }
-    
+
             // Crear o recuperar la asignación actual
-            let currentAssignment = register.assignament.find(a => a.status === 1);
-    
+            let currentAssignment = register.assignment.find(a => a.status === 1);
+
             if (!currentAssignment) {
                 currentAssignment = { status: 1 };
                 register.assignment.push(currentAssignment);
             }
-    
-            // Actualizar arrays específicos de instructores según modalidad permitida
-            allowedAssignments.forEach(key => {
-                if (assignment[key]) {
-                    if (!currentAssignment[key]) {
-                        currentAssignment[key] = [];
-                    }
-    
-                    const instructorData = assignment[key];
-                    const existingInstructor = currentAssignment[key].find(
-                        instructor => instructor.idInstructor === instructorData.idInstructor
-                    );
-    
-                    if (existingInstructor) {
-                        // Actualizar el instructor existente
-                        existingInstructor.name = instructorData.name;
-                        existingInstructor.email = instructorData.email;
-                        existingInstructor.status = 1; // Activar el instructor
-                    } else {
-                        // Agregar un nuevo instructor
-                        currentAssignment[key].push({
-                            idInstructor: instructorData.idInstructor,
-                            name: instructorData.name,
-                            email: instructorData.email,
-                            status: 1 // Nuevo instructor activo
-                        });
-                    }
+
+            // Desactivar instructores previos en todos los roles permitidos
+            allowedAssignments.forEach(role => {
+                if (currentAssignment[role]) {
+                    currentAssignment[role].forEach(instructor => {
+                        instructor.status = 0; // Desactivar a todos los instructores previos
+                    });
                 }
             });
-    
+
+            // Procesar y actualizar instructores enviados en la solicitud
+            allowedAssignments.forEach(role => {
+                if (assignment[role]) {
+                    if (!Array.isArray(assignment[role])) {
+                        // Si hay un solo instructor, lo convertimos en arreglo
+                        assignment[role] = [assignment[role]];
+                    }
+
+                    // Iteramos sobre los instructores, ya sea uno o varios
+                    assignment[role].forEach(instructor => {
+                        if (!currentAssignment[role]) {
+                            currentAssignment[role] = []; // Inicializar si no existe
+                        }
+
+                        const existingInstructor = currentAssignment[role].find(
+                            existing =>
+                                existing.idInstructor &&
+                                existing.idInstructor.toString() === instructor.idInstructor.toString()
+                        );
+
+                        if (existingInstructor) {
+                            // Actualizar el instructor existente
+                            existingInstructor.name = instructor.name;
+                            existingInstructor.email = instructor.email;
+                            existingInstructor.status = 1; // Activar el instructor
+                        } else {
+                            // Agregar un nuevo instructor
+                            currentAssignment[role].push({
+                                idInstructor: instructor.idInstructor,
+                                name: instructor.name,
+                                email: instructor.email,
+                                status: 1 // Nuevo instructor activo
+                            });
+                        }
+                    });
+                }
+            });
+
             // Guardar cambios en la base de datos
             await register.save();
-    
+
             res.status(200).json({
                 success: true,
                 message: "Asignación actualizada correctamente",
@@ -370,165 +388,195 @@ const httpRegisters = {
             console.error("Error al actualizar la asignación:", error);
             res.status(500).json({ message: error.message || "Error al actualizar la asignación" });
         }
-    },    
+    },
 
     listAllAssignments: async (req, res) => {
         try {
             // Obtener todos los registros sin proyección para ver la estructura completa
             const registers = await Register.find({});
-    
+
             // Imprimir los registros completos para ver qué datos están siendo obtenidos
             console.log("Registros completos:", registers);
-    
+
             // Verificar si hay datos
             if (registers.length === 0) {
                 return res.status(404).json({ success: false, message: "No se encontraron registros" });
             }
-    
+
             // Filtrar los campos necesarios y poblar los instructores dentro de assignment
             const filteredRegisters = await Register.find({})
                 .populate('assignment.followupInstructor', 'idInstructor name email')
                 .populate('assignment.technicalInstructor', 'idInstructor name email')
                 .populate('assignment.projectInstructor', 'idInstructor name email');
-    
+
             console.log("Registros filtrados y poblados:", filteredRegisters);
-    
+
             // Enviar la respuesta con los datos filtrados
             res.json({ success: true, data: filteredRegisters });
         } catch (error) {
             console.error("Error al listar asignaciones:", error);
             res.status(500).json({ success: false, error: "Error al listar asignaciones" });
         }
-    },  
-    
-      // Listar registros por ID del instructor de seguimiento
-      listRegisterByFollowUpInstructor: async (req, res) => {
-        const { idinstructor } = req.params;
-        if (!mongoose.isValidObjectId(idinstructor)) {
-          return res.status(400).json({ success: false, error: "ID de instructor no válido" });
-        }
-        try {
-          const registers = await Register.find({
-            'assignment.followUpInstructor.idInstructor': idinstructor,
-          });
-    
-          if (!registers.length) {
-            return res.status(404).json({ success: false, message: "No se encontraron registros para este instructor" });
-          }
-    
-          console.log("Registros encontrados para el instructor", registers);
-          res.json({ success: true, data: registers });
-        } catch (error) {
-          console.error("Error al listar registros por ID de instructor de seguimiento", error);
-          res.status(500).json({ success: false, error: "Error al listar registros por ID de instructor de seguimiento" });
-        }
-      },
-    
-      // Listar registros por ID del instructor técnico
-      listRegisterByTechnicalInstructor: async (req, res) => {
-        const { idinstructor } = req.params;
-        if (!mongoose.isValidObjectId(idinstructor)) {
-          return res.status(400).json({ success: false, error: "ID de instructor no válido" });
-        }
-        try {
-          const registers = await Register.find({
-            'assignment.technicalInstructor.idInstructor': idinstructor,
-          });
-    
-          if (!registers.length) {
-            return res.status(404).json({ success: false, message: "No se encontraron registros para este instructor técnico" });
-          }
-    
-          console.log("Registros encontrados para el instructor técnico", registers);
-          res.json({ success: true, data: registers });
-        } catch (error) {
-          console.error("Error al listar registros por ID de instructor técnico", error);
-          res.status(500).json({ success: false, error: "Error al listar registros por ID de instructor técnico" });
-        }
-      },
+    },
 
-      updateAssignment: async (req, res) => {
+    // Listar registros por ID del instructor de seguimiento
+    listRegisterByFollowUpInstructor: async (req, res) => {
+        const { idinstructor } = req.params;
+        if (!mongoose.isValidObjectId(idinstructor)) {
+            return res.status(400).json({ success: false, error: "ID de instructor no válido" });
+        }
+        try {
+            const registers = await Register.find({
+                'assignment.followUpInstructor.idInstructor': idinstructor,
+            });
+
+            if (!registers.length) {
+                return res.status(404).json({ success: false, message: "No se encontraron registros para este instructor" });
+            }
+
+            console.log("Registros encontrados para el instructor", registers);
+            res.json({ success: true, data: registers });
+        } catch (error) {
+            console.error("Error al listar registros por ID de instructor de seguimiento", error);
+            res.status(500).json({ success: false, error: "Error al listar registros por ID de instructor de seguimiento" });
+        }
+    },
+
+    // Listar registros por ID del instructor técnico
+    listRegisterByTechnicalInstructor: async (req, res) => {
+        const { idinstructor } = req.params;
+        if (!mongoose.isValidObjectId(idinstructor)) {
+            return res.status(400).json({ success: false, error: "ID de instructor no válido" });
+        }
+        try {
+            const registers = await Register.find({
+                'assignment.technicalInstructor.idInstructor': idinstructor,
+            });
+
+            if (!registers.length) {
+                return res.status(404).json({ success: false, message: "No se encontraron registros para este instructor técnico" });
+            }
+
+            console.log("Registros encontrados para el instructor técnico", registers);
+            res.json({ success: true, data: registers });
+        } catch (error) {
+            console.error("Error al listar registros por ID de instructor técnico", error);
+            res.status(500).json({ success: false, error: "Error al listar registros por ID de instructor técnico" });
+        }
+    },
+
+    updateAssignment: async (req, res) => {
         const { id } = req.params;
         const { assignment } = req.body;
         try {
-          const register = await Register.findById(id);
-          if (!register) {
-            return res.status(404).json({ message: "Registro no encontrado" });
-          }
-          if (!register.assignment || register.assignment.length === 0) {
-            return res.status(400).json({ message: "No hay asignación para actualizar" });
-          }
-          const currentAssignment = register.assignment[0];
-          const updateInstructorInfo = (type, updatedInstructor) => {
-            if (updatedInstructor && updatedInstructor.idInstructor) {
-              const activeInstructor = currentAssignment[type].find(
-                instructor =>
-                  instructor.status === 1 &&
-                  instructor.idInstructor.toString() === updatedInstructor.idInstructor
-              );
-              if (activeInstructor) {
-                activeInstructor.name = updatedInstructor.name || activeInstructor.name;
-                activeInstructor.email = updatedInstructor.email || activeInstructor.email;
-              } else {
-                return false;
-              }
+            const register = await Register.findById(id);
+            if (!register) {
+                return res.status(404).json({ message: "Registro no encontrado" });
             }
-            return true;
-          };
-          let updateSuccess = true;
-          if (assignment) {
-            if (assignment.followUpInstructor) {
-              updateSuccess = updateInstructorInfo("followUpInstructor", assignment.followUpInstructor) && updateSuccess;
+            if (!register.assignment || register.assignment.length === 0) {
+                return res.status(400).json({ message: "No hay asignación para actualizar" });
             }
-            if (assignment.technicalInstructor) {
-              updateSuccess = updateInstructorInfo("technicalInstructor", assignment.technicalInstructor) && updateSuccess;
+            const currentAssignment = register.assignment[0];
+            const updateInstructorInfo = (type, updatedInstructor) => {
+                if (updatedInstructor && updatedInstructor.idInstructor) {
+                    const activeInstructor = currentAssignment[type].find(
+                        instructor =>
+                            instructor.status === 1 &&
+                            instructor.idInstructor.toString() === updatedInstructor.idInstructor
+                    );
+                    if (activeInstructor) {
+                        activeInstructor.name = updatedInstructor.name || activeInstructor.name;
+                        activeInstructor.email = updatedInstructor.email || activeInstructor.email;
+                    } else {
+                        return false;
+                    }
+                }
+                return true;
+            };
+            let updateSuccess = true;
+            if (assignment) {
+                if (assignment.followUpInstructor) {
+                    updateSuccess = updateInstructorInfo("followUpInstructor", assignment.followUpInstructor) && updateSuccess;
+                }
+                if (assignment.technicalInstructor) {
+                    updateSuccess = updateInstructorInfo("technicalInstructor", assignment.technicalInstructor) && updateSuccess;
+                }
+                if (assignment.projectInstructor) {
+                    updateSuccess = updateInstructorInfo("projectInstructor", assignment.projectInstructor) && updateSuccess;
+                }
             }
-            if (assignment.projectInstructor) {
-              updateSuccess = updateInstructorInfo("projectInstructor", assignment.projectInstructor) && updateSuccess;
+            if (!updateSuccess) {
+                return res.status(400).json({ message: "No se pudo actualizar uno o más instructores. Asegúrese de que estén activos." });
             }
-          }
-          if (!updateSuccess) {
-            return res.status(400).json({ message: "No se pudo actualizar uno o más instructores. Asegúrese de que estén activos." });
-          }
-          await register.save();
-          res.status(200).json({
-            success: true,
-            message: "Asignación actualizada correctamente",
-            data: register
-          });
+            await register.save();
+            res.status(200).json({
+                success: true,
+                message: "Asignación actualizada correctamente",
+                data: register
+            });
         } catch (error) {
-          console.error("Error al actualizar la asignación:", error);
-          res.status(500).json({ message: error.message || "Error al actualizar la asignación" });
+            console.error("Error al actualizar la asignación:", error);
+            res.status(500).json({ message: error.message || "Error al actualizar la asignación" });
         }
-      },
+    },
 
     // Actualizar los datos del registro 
     updateRegisterById: async (req, res) => {
         const { id } = req.params;
-        const { startDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany } = req.body;
+        const { idApprentice, startDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany } = req.body;
         try {
-            const registerID = await Register.findById(id);
-            if (!registerID) {
-                return res.status(404).json({ msg: "Registro no encontrado" });
-            }
-
+          const register = await Register.findById(id);
+          if (!register) {
+            return res.status(404).json({ msg: "Registro no encontrado" });
+          }
+          const modalityData = req.body.idModality ? await Modality.findById(req.body.idModality) : null;
+          if (modalityData && !modalityData) {
+            return res.status(400).json({ message: "Modalidad no encontrada" });
+          }
+          const modality = modalityData || register.idModality;
+          const { name } = modality;
+    
+          const apprenticeCount = Array.isArray(idApprentice) ? idApprentice.length : 1;
+          const singleApprenticeModalities = ["VÍNCULO LABORAL", "MONITORIAS", "PASANTIA", "UNIDAD PRODUCTIVA FAMILIAR", "CONTRATO DE APRENDIZAJE"];
+          if (singleApprenticeModalities.includes(name) && apprenticeCount !== 1) {
+            return res.status(400).json({ message: "Solo se permite 1 aprendiz para esta modalidad" });
+          } else if (!singleApprenticeModalities.includes(name) && apprenticeCount < 1) {
+            return res.status(400).json({ message: "Se requiere al menos 1 aprendiz para esta modalidad" });
+          }
+    
+          let endDate = register.endDate;
+          if (startDate) {
             const start = new Date(startDate);
-            const endDate = new Date(start);
+            endDate = new Date(start);
             endDate.setMonth(endDate.getMonth() + 6);
             endDate.setDate(endDate.getDate() - 1);
-
-            const updatedRegister = await Register.findByIdAndUpdate(
-                id, { startDate, endDate, company, phoneCompany, addressCompany, owner, hour, businessProyectHour, productiveProjectHour, mailCompany },
-                { new: true }
-            );
-
-            console.log('Registro editado correctamente:', updatedRegister);
-            res.json(updatedRegister);
+          }
+          const updatedRegister = await Register.findByIdAndUpdate(
+            id,
+            {
+              idApprentice,
+              startDate,
+              endDate,
+              company,
+              phoneCompany,
+              addressCompany,
+              owner,
+              hour,
+              businessProyectHour,
+              productiveProjectHour,
+              mailCompany
+            },
+            { new: true }
+          );
+    
+          console.log('Registro actualizado correctamente:', updatedRegister);
+          res.json({ success: true, data: updatedRegister });
+    
         } catch (error) {
-            console.log('Error al actualizar registro:', error);
-            res.status(400).json({ error: 'Error al actualizar el registro' });
+          console.error('Error al actualizar registro:', error);
+          res.status(400).json({ error: 'Error al actualizar el registro' });
         }
-    },
+      },
 
     // Activar un registro
     enableRegister: async (req, res) => {
