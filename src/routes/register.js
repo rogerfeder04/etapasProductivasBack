@@ -3,9 +3,9 @@ import express from 'express';
 import { check } from 'express-validator'
 
 import validateFields from "../middleware/validate-fields.js"
-import  modalityHelper from "../helpers/modality.js";
-import  apprenticeHelper from "../helpers/apprentices.js";
-import  registerHelper from "../helpers/register.js";
+import modalityHelper from "../helpers/modality.js";
+import apprenticeHelper from "../helpers/apprentices.js";
+import registerHelper from "../helpers/register.js";
 import { ficheHelper } from "../helpers/repfora.js"
 import { validateRepfora } from "../middleware/validate-admin.js";
 
@@ -38,8 +38,7 @@ router.get('/listregisterbyapprentice/:idApprentice', [
 // Listar registros por ID de ficha
 router.get('/listregistersbyfiche/:idFiche', [
     validateRepfora,
-    check('idFiche').custom(async (idFiche, { req }) =>
-        {await ficheHelper.existsFicheID(idFiche, req.headers.token)}),
+    check('idFiche').custom(async (idFiche, { req }) => { await ficheHelper.existsFicheID(idFiche, req.headers.token) }),
     validateFields
 ], httpRegisters.listRegistersByFiche);
 
@@ -65,7 +64,7 @@ router.get('/listregisterbyenddate/:enddate', [
 
 router.post('/addregister', [
     // validateRepfora,
-    
+
     // check('idApprentice', 'Este ID no es valido').isMongoId(),
     // check('idApprentice', 'Este campo es obligatorio').notEmpty(),
     // check('idApprentice').custom(apprenticeHelper.existApprenticeID),
@@ -117,7 +116,7 @@ router.put('/updatemodalityregister/:id', [
 
 router.put('/addassignment/:id', [
     validateFields
-  ], httpRegisters.addAssignment);
+], httpRegisters.addAssignment);
 
 // Activar un registro
 router.put('/enableregister/:id', [
@@ -128,12 +127,12 @@ router.put('/enableregister/:id', [
 ], httpRegisters.enableRegister);
 
 router.put('/updateassignment/:id', [
-validateFields
-  ], httpRegisters.updateAssignment);
+    validateFields
+], httpRegisters.updateAssignment);
 
 router.get('/listallassignment', httpRegisters.listAllAssignments);
 
-router.get('/listassigmentbyfollowupinstructor/:idinstructor', httpRegisters.listRegisterByFollowUpInstructor);
+
 
 // Desactivar un registro
 router.put('/disabledesactivateregister/:id', [
@@ -142,6 +141,23 @@ router.put('/disabledesactivateregister/:id', [
     validateFields
 ], httpRegisters.disableDesactivateRegister);
 
+
+
+router.get('/listassigmentbyfollowupinstructor/:idinstructor', [
+], httpRegisters.listRegisterByFollowupInstructor);
+
+
+
+router.get('/listassigmentbytechnicalinstructor/:idinstructor', [
+], httpRegisters.listRegisterByTechnicalInstructor);
+
+
+router.get('/listassigmentbyprojectinstructor/:idinstructor', [
+], httpRegisters.listRegisterByProjectInstructor);
+
+
+router.get('/listRegisterByInstructorInAssignment/:idinstructor', [
+], httpRegisters.listRegisterByInstructorInAssignment);
 
 
 export default router;
